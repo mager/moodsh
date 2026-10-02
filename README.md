@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.4.0** adds Tab completion when you connect your shell. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
+Version **0.5.0** adds opt-in Git shortcuts with familiar Oh My Zsh names, while keeping your existing commands intact. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 [Website](https://moodsh.vercel.app) · [Theme gallery](https://moodsh.vercel.app/themes/) · [Make and share a theme](https://moodsh.vercel.app/themes/share/)
 
@@ -57,7 +57,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.4.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.5.0 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -120,6 +120,42 @@ The same init line now registers completion for `moodsh` commands, flags, layout
 For Zsh, Mood Shell also initializes Zsh's standard completion system when it is not already active. This restores normal command and path completion after removing Oh My Zsh. Bash and PowerShell retain their existing command and path completion; Mood Shell adds its own command definitions to those shells. Completion runs when you press Tab, while prompt rendering still uses the same small hook.
 
 This release provides **Tab completion**. Inline suggestions from your command history while you type are a separate feature and are not included yet.
+
+## Git shortcuts
+
+Keep the Git muscle memory you used in Oh My Zsh. Add `--shortcuts git` to your **existing** init line and open a new shell:
+
+```sh
+# Zsh (~/.zshrc)
+eval "$(moodsh init zsh --shortcuts git)"
+# Bash (~/.bashrc)
+eval "$(moodsh init bash --shortcuts git)"
+```
+
+```powershell
+# PowerShell 7 ($PROFILE)
+Invoke-Expression (& moodsh init powershell --shortcuts git | Out-String)
+```
+
+Run `moodsh shortcuts git` to see all 25 expansions before enabling them. A few familiar ones:
+
+| Shortcut | Runs |
+| --- | --- |
+| `gst` | `git status` |
+| `ga` / `gaa` | `git add` / `git add --all` |
+| `gcmsg "message"` | `git commit --message "message"` |
+| `gco branch` / `gsw branch` | `git checkout branch` / `git switch branch` |
+| `gcb name` / `gswc name` | Create a branch with checkout / switch |
+| `gd` / `gds` | Working-tree / staged diff |
+| `glog` | `git log --oneline --decorate --graph` |
+| `gl` / `gp` | `git pull` / `git push` |
+| `gsta` / `gstp` | `git stash push` / `git stash pop` |
+
+These are a focused, documented subset of [Oh My Zsh's Git shortcuts](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git), not an importer for arbitrary shell code. For example, `gap` keeps its upstream meaning, `git apply`. There are no force-push or hard-reset shortcuts in this set. Commands such as `gp` and `gstp` still perform ordinary Git mutations when you explicitly run them.
+
+Existing aliases, functions, built-ins, and executables win at initialization. PowerShell normally keeps `gc` (Get-Content), `gl` (Get-Location), and `gp` (Get-ItemProperty); use their full Git commands there. Later definitions in your profile can also override these shortcuts. Zsh and Bash use aliases; PowerShell uses argument-forwarding functions. Git must be installed separately (Git 2.23+ for `gsw`/`gswc`). This does not install Git-specific completion on Bash or PowerShell.
+
+Shortcuts are off by default, add no work to prompt rendering, and never come from a theme document. Remove the flag and start a new shell to disable them; reevaluating init without the flag does not remove aliases already loaded in the current session. No shell startup file is edited automatically.
 
 ## Find your mood
 
@@ -251,7 +287,7 @@ moodsh prompt --no-color
 
 A 24-bit color terminal gives the intended palette. Set `NO_COLOR` to disable colors; `TERM=dumb` also uses plain output. Prompt symbols are ASCII, so no Nerd Font is required.
 
-A mood styles **the prompt**. Tab completion assists with typing commands; it does not change terminal colors. Terminal backgrounds, command syntax highlighting, inline history suggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
+A mood styles **the prompt**. Tab completion and optional Git shortcuts assist with commands; they do not change terminal colors. Terminal backgrounds, command syntax highlighting, inline history suggestions, loading arbitrary shell extensions, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
 
 A blinking or pulsing cursor comes from your terminal emulator's settings, not Mood Shell. This is an early public release for people who want a small, customizable prompt; it does not replace the plugin features of a full shell framework.
 

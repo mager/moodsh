@@ -2,6 +2,7 @@ mod config;
 mod picker;
 mod prompt;
 mod shell;
+mod shortcuts;
 mod theme;
 mod theme_file;
 
@@ -31,6 +32,14 @@ enum Command {
     Init {
         #[arg(value_enum)]
         shell: InitShell,
+        /// Add opt-in shortcuts; existing aliases, functions, and commands win.
+        #[arg(long, value_enum)]
+        shortcuts: Option<ShortcutSet>,
+    },
+    /// Show the exact commands in a shortcut set.
+    Shortcuts {
+        #[arg(value_enum)]
+        set: ShortcutSet,
     },
     /// Browse, preview, and save moods.
     Theme {
@@ -118,6 +127,11 @@ struct Overrides {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
+enum ShortcutSet {
+    Git,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
 enum InitShell {
     Zsh,
     Bash,
@@ -141,13 +155,19 @@ fn colors_enabled() -> bool {
 fn run() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Command::Init { shell: target } => {
+        Command::Init {
+            shell: target,
+            shortcuts: enabled,
+        } => {
             let script = shell::init(target.into(), &std::env::current_exe()?)?;
             let completion_shell = match target {
                 InitShell::Zsh => CompletionShell::Zsh,
                 InitShell::Bash => CompletionShell::Bash,
                 InitShell::Powershell => CompletionShell::PowerShell,
             };
+            let shortcut_script = enabled
+                .map(|_| shortcuts::init(target.into()))
+                .transpose()?;
             let mut completions = Vec::new();
             clap_complete::generate(
                 completion_shell,
@@ -164,6 +184,20 @@ fn run() -> Result<()> {
                 stdout.write_all(script.as_bytes())?;
                 stdout.write_all(&completions)?;
             }
+            if let Some(shortcuts) = shortcut_script {
+                stdout.write_all(shortcuts.as_bytes())?;
+            }
+        }
+        Command::Shortcuts {
+            set: ShortcutSet::Git,
+        } => {
+            println!("moodsh / Git shortcuts (opt-in)\n");
+            for (name, command) in shortcuts::GIT {
+                println!("  {name:6} {command}");
+            }
+            println!(
+                "\nEnable: add --shortcuts git to your moodsh init line, then open a new shell.\nExisting command names win. PowerShell usually keeps its built-in gc, gl, and gp.\nDisable: remove the flag and open a new shell. Git must be installed separately."
+            );
         }
         Command::Theme {
             command: ThemeCommand::List,

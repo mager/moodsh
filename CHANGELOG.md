@@ -2,6 +2,13 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.5.0 — 2026-10-02
+
+- Add 25 opt-in Git shortcuts with familiar Oh My Zsh names, enabled with `moodsh init <shell> --shortcuts git`.
+- Show every expansion with `moodsh shortcuts git`; preserve existing aliases, functions, built-ins, and executables on Zsh, Bash, and PowerShell.
+- Forward arguments without re-evaluating shell text. Keep shortcuts independent of theme files, configuration, and prompt rendering.
+- Test collision handling, repeated startup, quoted arguments, native Git invocation, and exit codes in real shells across CI platforms.
+
 ## Website 0.1.0 — 2026-10-02
 
 The website is versioned independently; the CLI remains at 0.4.0.
