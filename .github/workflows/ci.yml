@@ -29,7 +29,12 @@ jobs:
       - run: cargo build --locked
       - name: Exercise native shell integrations
         shell: bash
-        run: python scripts/test_shells.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }}
+        run: |
+          set -o pipefail
+          python scripts/test_shells.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }} 2>&1 | tee shell-test.log || {
+            echo "::error title=Shell integration test failed::$(tail -n 1 shell-test.log)"
+            exit 1
+          }
       - name: Exercise interactive picker in a PTY
         if: runner.os != 'Windows'
         run: python scripts/test_picker.py target/debug/moodsh

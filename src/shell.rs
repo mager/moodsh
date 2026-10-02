@@ -31,7 +31,7 @@ precmd_functions=(_moodsh_precmd ${precmd_functions:#_moodsh_precmd})
 # Enable Zsh's standard Tab completion when no other framework has done so.
 if (( ! $+functions[compdef] )); then
   autoload -Uz compinit
-  compinit
+  compinit -i
 fi
 "#.replace("@EXE@", &posix),
         Shell::Bash => r#"_moodsh_prompt() {
