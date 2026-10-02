@@ -1,11 +1,11 @@
-The first Mood Shell release: a small Rust toolkit for making your shell feel like yours.
+Make a mood your own without leaving the picker.
 
-- Five built-in moods: dusk, aurora, ember, ocean, and paper.
-- Live terminal picker with compact and two-line prompt layouts.
-- Custom hex colors, portable TOML configuration, and immediate updates on the next prompt.
-- Zsh, Bash, and PowerShell 7 integrations, with failed-command status.
-- Native builds for Apple Silicon and Intel macOS, x64 Linux, and x64 Windows.
+- Press 1–4 in `moodsh customize` to edit the prompt arrow, directory, mood name, or failure color.
+- Type or paste a hex color and see it in live success and failed-command previews.
+- Apply colors to a draft, browse other moods, and save when ready. Esc discards an edit or cancels the picker; Ctrl-C cancels everything.
+- Keep your existing custom palette and config format. Shell integrations are unchanged, and no dependencies were added.
+- Clearer installation instructions for macOS, Linux, and Windows, including `cargo: command not found` troubleshooting.
 
-Download your platform archive, extract it, and put `moodsh` (or `moodsh.exe`) on your PATH. See the README for the one-line shell integration. SHA-256 checksum files accompany every archive.
+Rust and Cargo are not required: download your platform archive, extract it, and follow the README to put `moodsh` (or `moodsh.exe`) on your PATH. SHA-256 checksum files accompany every archive.
 
-This is an early prompt-and-theme toolkit. It does not replace your shell, manage plugins, or change your terminal background. No account, daemon, or telemetry.
+This release customizes the prompt. Terminal backgrounds, syntax highlighting, autosuggestions, Fish support, and animations are not implemented. Shell startup files are never edited automatically.

@@ -32,7 +32,7 @@ enum Command {
         #[command(subcommand)]
         command: ThemeCommand,
     },
-    /// Pick a mood and prompt layout with a live terminal preview.
+    /// Pick a mood, edit its colors, and choose a layout with a live preview.
     Customize,
     /// Render a prompt (used by shell integrations).
     Prompt {

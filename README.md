@@ -12,19 +12,60 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.1.0** starts with the essentials: five palettes, a live picker, two layouts, and a readable prompt that shows when a command fails. No required fonts, account, daemon, or telemetry.
+Version **0.2.0** makes personalization interactive: five palettes, live hex-color editing, two layouts, and a readable prompt that shows when a command fails. No required fonts, account, daemon, or telemetry.
 
 ## Install
 
-Download an archive from [Releases](https://github.com/mager/moodsh/releases), extract it, and place `moodsh` (Windows: `moodsh.exe`) in a directory on your `PATH`.
+**Rust and Cargo are not required to use Mood Shell.** Download an archive from [Releases](https://github.com/mager/moodsh/releases) and extract it. Choose the archive for your platform (not GitHub's “Source code” download):
+
+| Platform | Archive name ends with |
+| --- | --- |
+| macOS, Apple Silicon | `aarch64-apple-darwin.tar.gz` |
+| macOS, Intel | `x86_64-apple-darwin.tar.gz` |
+| Linux, x64 (glibc) | `x86_64-unknown-linux-gnu.tar.gz` |
+| Windows, x64 | `x86_64-pc-windows-msvc.zip` |
+
+On **macOS or Linux**, open a terminal in the extracted folder and run:
+
+```sh
+mkdir -p "$HOME/.local/bin"
+install -m 755 ./moodsh "$HOME/.local/bin/moodsh"
+export PATH="$HOME/.local/bin:$PATH"
+moodsh --version
+```
+
+The `export` applies to this session. Add it to your shell startup file before the Mood Shell init line to keep it in future sessions.
+
+On **Windows**, open PowerShell in the extracted folder and run:
+
+```powershell
+$dest = Join-Path $env:LOCALAPPDATA 'Programs\moodsh'
+New-Item -ItemType Directory -Force $dest | Out-Null
+Copy-Item .\moodsh.exe (Join-Path $dest 'moodsh.exe')
+$env:Path = "$dest;$env:Path"
+moodsh --version
+```
+
+For future sessions, add that directory to your user `Path` using Windows' **Edit environment variables for your account**, then reopen your terminal.
 
 Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 Windows. Other Rust-supported architectures can build from source. Windows support is native and does not require WSL. macOS binaries are unsigned; building from source is an alternative if macOS blocks a downloaded binary.
 
-With a current stable Rust toolchain and Git:
+### Build from source (optional)
+
+With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.1.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.2.0 --locked
 ```
+
+**`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
+
+```sh
+source "$HOME/.cargo/env"
+cargo --version
+```
+
+If `~/.cargo/env` does not exist, follow the Rust installation link or use a prebuilt binary. If Mood Shell is already installed with Cargo, `~/.cargo/bin/moodsh customize` works even before fixing PATH. Neither installing Mood Shell nor running the picker connects it to your shell automatically.
 
 For development:
 
@@ -76,7 +117,20 @@ If your profile does not exist, create its parent directory and an empty file be
 moodsh customize
 ```
 
-Use **↑/↓** or **j/k** to browse live previews, **Tab** to switch layouts, **Enter** to save, and **Esc** to cancel. The picker also shows a failed-command preview. It requires an interactive terminal; the commands below work in scripts.
+Use **↑/↓** or **j/k** to browse live previews and **Tab** to switch layouts. Press **1–4** to edit a color:
+
+| Key | Color | What it changes |
+| --- | --- | --- |
+| `1` | Accent | Prompt arrow |
+| `2` | Path | Directory text |
+| `3` | Muted | Mood name in the two-line layout |
+| `4` | Error | Failed-command status and arrow |
+
+Type or paste a `#RRGGBB` color (the `#` is optional). Typing replaces the current value; **Backspace** edits it and **Ctrl-U** clears it. A complete color updates the success and failed-command previews immediately. **Enter** applies the color to your draft and returns to browsing; **Esc** discards just that color edit.
+
+From browsing, **Enter** saves the whole draft and **Esc** cancels all changes. **Ctrl-C** cancels from either view. You can switch moods and return without losing draft color edits. Your exact saved palette is included as a `(saved)` choice when it differs from the built-ins. Nothing is written until you save from browsing.
+
+The picker requires an interactive terminal of at least 80 columns by 24 rows; it pauses for resizing in smaller windows. `NO_COLOR` or `TERM=dumb` disables the color preview, but you can still edit values. The commands below work in scripts.
 
 | Mood | Accent | Feel |
 | --- | --- | --- |
@@ -138,7 +192,7 @@ moodsh prompt --no-color
 
 A 24-bit color terminal gives the intended palette. Set `NO_COLOR` to disable colors; `TERM=dumb` also uses plain output. Prompt symbols are ASCII, so no Nerd Font is required.
 
-In 0.1, a mood styles **the prompt**. Terminal backgrounds, command syntax highlighting, autosuggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
+A mood styles **the prompt**. Terminal backgrounds, command syntax highlighting, autosuggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
 
 Zsh integration disables `PROMPT_SUBST` to keep directory names from being evaluated as shell code. Bash escapes prompt metacharacters. Both preserve existing prompt hooks, though another prompt engine can overwrite their output. Keep Mood Shell as the only prompt renderer. If the config becomes invalid, the shell hook falls back to a simple usable prompt and prints the error.
 
@@ -150,10 +204,11 @@ cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
 cargo build --locked
 python3 scripts/test_shells.py target/debug/moodsh
+python3 scripts/test_picker.py target/debug/moodsh
 ```
 
-On Windows, use `python` and `target/debug/moodsh.exe`. The shell integration tests exercise available supported shells; CI requires PowerShell on all three operating systems, plus Bash/Zsh where available.
+On Windows, use `python` and `target/debug/moodsh.exe` for the shell integration tests. The PTY picker script runs on macOS/Linux; picker state and input tests run natively on all three platforms. The shell integration tests exercise available supported shells; CI requires PowerShell on all three operating systems, plus Bash/Zsh where available.
 
-Versions follow [Semantic Versioning](https://semver.org/), starting at `0.1.0`. Before 1.0, breaking changes increment the minor version and compatible fixes increment the patch version. Update `Cargo.toml`, `Cargo.lock`, `CHANGELOG.md`, and `.github/release-notes.md` before tagging `vX.Y.Z`. Pushing a tag builds release archives and publishes them with SHA-256 checksums. The workflow rejects a tag that does not match the package version.
+Versions follow [Semantic Versioning](https://semver.org/), starting at `0.1.0`. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out in the changelog. Update `Cargo.toml`, `Cargo.lock`, `CHANGELOG.md`, and `.github/release-notes.md` before tagging `vX.Y.Z`. Pushing a tag builds release archives and publishes them with SHA-256 checksums. The workflow rejects a tag that does not match the package version.
 
 [MIT](LICENSE).

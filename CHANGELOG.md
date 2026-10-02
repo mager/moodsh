@@ -1,6 +1,15 @@
 # Changelog
 
-Versions follow Semantic Versioning. Before 1.0, breaking changes increment the minor version; compatible fixes increment the patch version. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
+Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
+
+## 0.2.0 — 2026-10-02
+
+- Edit all four prompt colors inside `moodsh customize`, with live success and failure previews.
+- Type or paste hex colors, discard individual edits, and keep drafts while browsing moods. Save only when ready; Esc or Ctrl-C cancels without writing.
+- Keep incomplete colors out of prompt rendering and validate pasted text without interpreting it as keystrokes.
+- Label saved custom palettes, explain each color's role, and pause the picker when a terminal is too small.
+- Document installation without Rust on macOS, Linux, and Windows, and explain how to fix `cargo: command not found` when Rust is already installed.
+- Preserve existing config format, prompt rendering, and shell hooks. No additional dependencies.
 
 ## 0.1.0 — 2026-10-02
 
