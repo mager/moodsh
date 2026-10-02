@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.3.0** adds themes you can read, edit, and share as Markdown. Start with five palettes, tune hex colors in the live picker, and export your own theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
+Version **0.4.0** adds Tab completion when you connect your shell. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 ## Install
 
@@ -55,7 +55,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.3.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.4.0 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -110,6 +110,14 @@ Invoke-Expression (& moodsh init powershell | Out-String)
 If your profile does not exist, create its parent directory and an empty file before editing it. Mood Shell replaces PowerShell's `prompt` function and preserves `$LASTEXITCODE` after rendering.
 
 `moodsh init` only prints the integration script; it does not edit your startup files. To disconnect, remove its init line and restart the shell.
+
+### Complete commands with Tab
+
+The same init line now registers completion for `moodsh` commands, flags, layouts, and built-in mood names. Zsh and Bash also complete theme file paths. Try `moodsh theme set em` and press **Tab** to complete `ember`. The completion script is generated from the CLI's command definitions, so it stays in sync with the installed version.
+
+For Zsh, Mood Shell also initializes Zsh's standard completion system when it is not already active. This restores normal command and path completion after removing Oh My Zsh. Bash and PowerShell retain their existing command and path completion; Mood Shell adds its own command definitions to those shells. Completion runs when you press Tab, while prompt rendering still uses the same small hook.
+
+This release provides **Tab completion**. Inline suggestions from your command history while you type are a separate feature and are not included yet.
 
 ## Find your mood
 
@@ -241,7 +249,7 @@ moodsh prompt --no-color
 
 A 24-bit color terminal gives the intended palette. Set `NO_COLOR` to disable colors; `TERM=dumb` also uses plain output. Prompt symbols are ASCII, so no Nerd Font is required.
 
-A mood styles **the prompt**. Terminal backgrounds, command syntax highlighting, autosuggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
+A mood styles **the prompt**. Tab completion assists with typing commands; it does not change terminal colors. Terminal backgrounds, command syntax highlighting, inline history suggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
 
 A blinking or pulsing cursor comes from your terminal emulator's settings, not Mood Shell. This is an early public release for people who want a small, customizable prompt; it does not replace the plugin features of a full shell framework.
 

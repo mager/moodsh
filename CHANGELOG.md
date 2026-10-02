@@ -2,6 +2,13 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.4.0 — 2026-10-02
+
+- Register native Tab completion for Mood Shell commands, options, layouts, and built-in moods in Zsh, Bash, and PowerShell; Zsh and Bash also complete theme file paths.
+- Initialize Zsh's standard completion system when needed, restoring command and path completion for users who removed Oh My Zsh.
+- Generate completion definitions from the CLI at shell startup; repeated initialization remains safe and prompt hooks retain their behavior.
+- Keep inline history suggestions outside this release's scope.
+
 ## 0.3.0 — 2026-10-02
 
 - Create shareable Markdown themes with `theme new`, starting from any built-in mood.

@@ -28,6 +28,11 @@ _moodsh_precmd() {
 }
 typeset -ga precmd_functions
 precmd_functions=(_moodsh_precmd ${precmd_functions:#_moodsh_precmd})
+# Enable Zsh's standard Tab completion when no other framework has done so.
+if (( ! $+functions[compdef] )); then
+  autoload -Uz compinit
+  compinit
+fi
 "#.replace("@EXE@", &posix),
         Shell::Bash => r#"_moodsh_prompt() {
   local moodsh_status=$?

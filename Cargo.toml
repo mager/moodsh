@@ -1,6 +1,6 @@
 [package]
 name = "moodsh"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 description = "Make your shell feel like yours."
 license = "MIT"
@@ -12,6 +12,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
+clap_complete = "4.6.11"
 crossterm = "0.29"
 dirs = "6"
 serde = { version = "1", features = ["derive"] }

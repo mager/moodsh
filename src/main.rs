@@ -6,7 +6,8 @@ mod theme;
 mod theme_file;
 
 use anyhow::{Context, Result};
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, ValueEnum};
+use clap_complete::Shell as CompletionShell;
 use std::{
     io::{self, IsTerminal, Write},
     path::PathBuf,
@@ -29,7 +30,7 @@ enum Command {
     /// Print shell integration. Add it to your shell profile (see README).
     Init {
         #[arg(value_enum)]
-        shell: prompt::Shell,
+        shell: InitShell,
     },
     /// Browse, preview, and save moods.
     Theme {
@@ -68,6 +69,7 @@ enum ThemeCommand {
     List,
     /// Preview a built-in mood, a Markdown theme file, or your current mood.
     Preview {
+        #[arg(value_parser = theme::NAMES)]
         name: Option<String>,
         #[arg(long, value_name = "PATH", conflicts_with = "name")]
         file: Option<PathBuf>,
@@ -76,6 +78,7 @@ enum ThemeCommand {
     },
     /// Save a built-in mood, optionally overriding its colors and layout.
     Set {
+        #[arg(value_parser = theme::NAMES)]
         name: String,
         #[command(flatten)]
         overrides: Overrides,
@@ -83,7 +86,7 @@ enum ThemeCommand {
     /// Create a Markdown theme from a built-in mood. Never overwrites a file.
     New {
         file: PathBuf,
-        #[arg(long, default_value = "dusk")]
+        #[arg(long, default_value = "dusk", value_parser = theme::NAMES)]
         from: String,
         /// Theme name; defaults to the filename without its extension.
         #[arg(long)]
@@ -114,6 +117,23 @@ struct Overrides {
     layout: Option<Layout>,
 }
 
+#[derive(Clone, Copy, ValueEnum)]
+enum InitShell {
+    Zsh,
+    Bash,
+    Powershell,
+}
+
+impl From<InitShell> for prompt::Shell {
+    fn from(shell: InitShell) -> Self {
+        match shell {
+            InitShell::Zsh => Self::Zsh,
+            InitShell::Bash => Self::Bash,
+            InitShell::Powershell => Self::Powershell,
+        }
+    }
+}
+
 fn colors_enabled() -> bool {
     std::env::var_os("NO_COLOR").is_none() && std::env::var("TERM").as_deref() != Ok("dumb")
 }
@@ -122,7 +142,28 @@ fn run() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::Init { shell: target } => {
-            print!("{}", shell::init(target, &std::env::current_exe()?)?)
+            let script = shell::init(target.into(), &std::env::current_exe()?)?;
+            let completion_shell = match target {
+                InitShell::Zsh => CompletionShell::Zsh,
+                InitShell::Bash => CompletionShell::Bash,
+                InitShell::Powershell => CompletionShell::PowerShell,
+            };
+            let mut completions = Vec::new();
+            clap_complete::generate(
+                completion_shell,
+                &mut Cli::command(),
+                "moodsh",
+                &mut completions,
+            );
+            let mut stdout = io::stdout().lock();
+            // PowerShell requires `using namespace` declarations at the top of the script.
+            if matches!(target, InitShell::Powershell) {
+                stdout.write_all(&completions)?;
+                stdout.write_all(script.as_bytes())?;
+            } else {
+                stdout.write_all(script.as_bytes())?;
+                stdout.write_all(&completions)?;
+            }
         }
         Command::Theme {
             command: ThemeCommand::List,
