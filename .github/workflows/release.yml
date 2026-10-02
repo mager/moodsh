@@ -50,6 +50,7 @@ jobs:
           shutil.copy2(pathlib.Path('target') / target / 'release' / executable, dest)
           for file in ('README.md', 'LICENSE', 'CHANGELOG.md'):
               shutil.copy2(file, dest)
+          shutil.copytree('themes', dest / 'themes')
           pathlib.Path('dist').mkdir()
           kind = 'zip' if 'windows' in target else 'gztar'
           archive = pathlib.Path(shutil.make_archive('dist/' + name, kind, 'package', name))

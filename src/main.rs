@@ -3,10 +3,14 @@ mod picker;
 mod prompt;
 mod shell;
 mod theme;
+mod theme_file;
 
 use anyhow::{Context, Result};
 use clap::{Args, Parser, Subcommand};
-use std::io::{self, IsTerminal, Write};
+use std::{
+    io::{self, IsTerminal, Write},
+    path::PathBuf,
+};
 use theme::{Layout, Mood};
 
 #[derive(Parser)]
@@ -62,9 +66,11 @@ enum ConfigCommand {
 enum ThemeCommand {
     /// List the built-in moods.
     List,
-    /// Preview a built-in mood, or your current mood if omitted.
+    /// Preview a built-in mood, a Markdown theme file, or your current mood.
     Preview {
         name: Option<String>,
+        #[arg(long, value_name = "PATH", conflicts_with = "name")]
+        file: Option<PathBuf>,
         #[arg(long, value_enum)]
         layout: Option<Layout>,
     },
@@ -74,6 +80,24 @@ enum ThemeCommand {
         #[command(flatten)]
         overrides: Overrides,
     },
+    /// Create a Markdown theme from a built-in mood. Never overwrites a file.
+    New {
+        file: PathBuf,
+        #[arg(long, default_value = "dusk")]
+        from: String,
+        /// Theme name; defaults to the filename without its extension.
+        #[arg(long)]
+        name: Option<String>,
+    },
+    /// Export your current palette and layout as a shareable Markdown theme.
+    Export {
+        file: PathBuf,
+        /// Optionally give the exported theme a new name.
+        #[arg(long)]
+        name: Option<String>,
+    },
+    /// Validate and apply a local Markdown theme to your prompt.
+    Apply { file: PathBuf },
 }
 
 #[derive(Args)]
@@ -111,11 +135,12 @@ fn run() -> Result<()> {
             println!("\nPreview: moodsh theme preview dusk\nChoose:  moodsh customize");
         }
         Command::Theme {
-            command: ThemeCommand::Preview { name, layout },
+            command: ThemeCommand::Preview { name, file, layout },
         } => {
-            let mut mood = match name {
-                Some(name) => Mood::builtin(&name)?,
-                None => config::load(&config::path()?)?.mood,
+            let mut mood = match (name, file) {
+                (_, Some(path)) => theme_file::load(&path)?,
+                (Some(name), None) => Mood::builtin(&name)?,
+                (None, None) => config::load(&config::path()?)?.mood,
             };
             if let Some(layout) = layout {
                 mood.layout = layout;
@@ -161,6 +186,50 @@ fn run() -> Result<()> {
             println!(
                 "Saved {name} to {}. Your next prompt will use it.",
                 path.display()
+            );
+        }
+        Command::Theme {
+            command: ThemeCommand::New { file, from, name },
+        } => {
+            let mut mood = Mood::builtin(&from)?;
+            mood.name = match name {
+                Some(name) => name,
+                None => file
+                    .file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .context("Use --name to give this theme an ASCII name")?
+                    .to_owned(),
+            };
+            theme_file::write(&file, &mood)?;
+            println!(
+                "Created {}. Edit its moodsh block, then preview with `moodsh theme preview --file PATH`.",
+                file.display()
+            );
+        }
+        Command::Theme {
+            command: ThemeCommand::Export { file, name },
+        } => {
+            let mut mood = config::load(&config::path()?)?.mood;
+            if let Some(name) = name {
+                mood.name = name;
+            }
+            theme_file::write(&file, &mood)?;
+            println!(
+                "Exported {} to {}. Your active prompt is unchanged.",
+                mood.name,
+                file.display()
+            );
+        }
+        Command::Theme {
+            command: ThemeCommand::Apply { file },
+        } => {
+            let mood = theme_file::load(&file)?;
+            let path = config::path()?;
+            config::load(&path)?;
+            let name = mood.name.clone();
+            config::save(&path, &config::Config { mood })?;
+            println!(
+                "Applied {name}. Your next prompt will use it. The Markdown file is unchanged."
             );
         }
         Command::Customize => picker::run(&config::path()?)?,
@@ -234,7 +303,20 @@ fn main() {
         {
             return;
         }
-        eprintln!("moodsh: {error:#}");
+        // Theme files and paths can contain untrusted terminal control characters.
+        let diagnostic: String = format!("{error:#}")
+            .chars()
+            .flat_map(|c| {
+                if (c.is_control() && c != '\n' && c != '\t')
+                    || matches!(c, '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}')
+                {
+                    c.escape_default().collect::<Vec<_>>()
+                } else {
+                    vec![c]
+                }
+            })
+            .collect();
+        eprintln!("moodsh: {diagnostic}");
         std::process::exit(1);
     }
 }

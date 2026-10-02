@@ -2,6 +2,16 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.3.0 — 2026-10-02
+
+- Create shareable Markdown themes with `theme new`, starting from any built-in mood.
+- Export your current colors and layout with `theme export`, with an optional new name.
+- Preview a local theme with `theme preview --file` and explicitly save it with `theme apply`.
+- Read exactly one fenced `moodsh` block as validated TOML; prose and other code blocks are never executed.
+- Reject ambiguous, malformed, oversized, and invalid theme documents. Creating or exporting a theme never overwrites an existing file.
+- Include an editable Afterhours theme and format guide in release archives.
+- Keep runtime TOML, shell hooks, and prompt rendering compatible. No additional dependencies.
+
 ## 0.2.0 — 2026-10-02
 
 - Edit all four prompt colors inside `moodsh customize`, with live success and failure previews.

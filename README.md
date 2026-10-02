@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.2.0** makes personalization interactive: five palettes, live hex-color editing, two layouts, and a readable prompt that shows when a command fails. No required fonts, account, daemon, or telemetry.
+Version **0.3.0** adds themes you can read, edit, and share as Markdown. Start with five palettes, tune hex colors in the live picker, and export your own theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 ## Install
 
@@ -55,7 +55,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.2.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.3.0 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -152,7 +152,56 @@ Color overrides: `--accent`, `--path`, `--muted`, and `--error`. Each accepts a 
 
 Saved changes appear at the next prompt, including in other shells using the same config. A theme preview never saves changes. For your exact current palette, run `moodsh theme preview` without a name.
 
-## Your own palette
+## Create and share a theme in Markdown
+
+Start from a built-in mood:
+
+```sh
+moodsh theme new afterhours.md --from ocean
+```
+
+This creates an editable document with colors, layout, and an explanation of each field. The theme name defaults to the filename without its extension; use `--name afterhours` if your filename contains spaces. Names use 1–48 ASCII letters, numbers, hyphens, or underscores.
+
+Or design your palette with `moodsh customize`, save it, then export it:
+
+```sh
+moodsh theme export afterhours.md --name afterhours
+```
+
+Both commands leave your active prompt unchanged and refuse to overwrite existing files. Use a new filename when exporting a revision.
+
+A theme is an ordinary Markdown document with exactly one `moodsh` code block. Write about your inspiration, credit the author, or explain which terminal background suits the palette. The block contains the same TOML fields as the runtime config:
+
+````markdown
+# Afterhours
+
+Pink and lavender for a dark terminal, with a little room to breathe.
+
+```moodsh
+[mood]
+name = "afterhours"
+layout = "two-line"
+
+[mood.palette]
+accent = "#FF77CC"
+path = "#E0DEF4"
+muted = "#908CAA"
+error = "#EB6F92"
+```
+````
+
+Save a shared document locally, then inspect its preview before applying it:
+
+```sh
+moodsh theme preview --file afterhours.md
+moodsh theme apply afterhours.md
+```
+
+Previewing writes nothing. Applying validates and copies the palette into your runtime config; it never executes prose or shell code. Subsequent edits to the Markdown file take effect only when you apply it again. You can also fine-tune an applied theme in `moodsh customize` and export a new document.
+
+Try the included [Afterhours theme](themes/afterhours.md). See the [theme format guide](themes/README.md) for supported fences and validation rules. Files are local UTF-8 Markdown, at most 64 KiB. Links and URLs inside a theme are never fetched. The Markdown file travels with the theme's explanation; your prompt reads only its saved TOML configuration.
+
+## Runtime configuration
 
 ```sh
 moodsh config path
@@ -193,6 +242,8 @@ moodsh prompt --no-color
 A 24-bit color terminal gives the intended palette. Set `NO_COLOR` to disable colors; `TERM=dumb` also uses plain output. Prompt symbols are ASCII, so no Nerd Font is required.
 
 A mood styles **the prompt**. Terminal backgrounds, command syntax highlighting, autosuggestions, plugin management, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
+
+A blinking or pulsing cursor comes from your terminal emulator's settings, not Mood Shell. This is an early public release for people who want a small, customizable prompt; it does not replace the plugin features of a full shell framework.
 
 Zsh integration disables `PROMPT_SUBST` to keep directory names from being evaluated as shell code. Bash escapes prompt metacharacters. Both preserve existing prompt hooks, though another prompt engine can overwrite their output. Keep Mood Shell as the only prompt renderer. If the config becomes invalid, the shell hook falls back to a simple usable prompt and prints the error.
 

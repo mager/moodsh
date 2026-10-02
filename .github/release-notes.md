@@ -1,11 +1,12 @@
-Make a mood your own without leaving the picker.
+Mood Shell 0.3.0 introduces shareable Markdown themes: a palette, a layout, and the explanation behind them in one readable file.
 
-- Press 1–4 in `moodsh customize` to edit the prompt arrow, directory, mood name, or failure color.
-- Type or paste a hex color and see it in live success and failed-command previews.
-- Apply colors to a draft, browse other moods, and save when ready. Esc discards an edit or cancels the picker; Ctrl-C cancels everything.
-- Keep your existing custom palette and config format. Shell integrations are unchanged, and no dependencies were added.
-- Clearer installation instructions for macOS, Linux, and Windows, including `cargo: command not found` troubleshooting.
+- `moodsh theme new afterhours.md --from ocean` creates an editable theme.
+- `moodsh theme export my-mood.md --name my-mood` shares the colors you saved in the live picker.
+- `moodsh theme preview --file afterhours.md` lets you inspect a local theme before saving.
+- `moodsh theme apply afterhours.md` validates and applies it to your next prompt.
 
-Rust and Cargo are not required: download your platform archive, extract it, and follow the README to put `moodsh` (or `moodsh.exe`) on your PATH. SHA-256 checksum files accompany every archive.
+Theme documents contain exactly one fenced `moodsh` block of TOML. Prose and other code blocks are never executed. New/export refuse to overwrite files; malformed themes leave the active config intact. The existing runtime config and shell hooks are unchanged. No new dependencies.
 
-This release customizes the prompt. Terminal backgrounds, syntax highlighting, autosuggestions, Fish support, and animations are not implemented. Shell startup files are never edited automatically.
+Every archive includes the Afterhours theme and format guide in `themes/`. Download the archive for your platform and follow the README to put `moodsh` (or `moodsh.exe`) on PATH. Rust and Cargo are not required. SHA-256 checksums accompany every archive.
+
+This is an early public release for prompt personalization on Zsh, Bash, and PowerShell 7, with native macOS, Linux, and Windows builds. Terminal backgrounds, cursor animations, syntax highlighting, autosuggestions, and Fish support are not implemented. Shell startup files are never edited automatically.
