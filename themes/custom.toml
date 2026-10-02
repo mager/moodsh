@@ -1,0 +1,11 @@
+# Copy to the location printed by `moodsh config path`, or set MOODSH_CONFIG
+# to this file's absolute path. Colors are shared across supported shells.
+[mood]
+name = "afterhours"
+layout = "two-line"
+
+[mood.palette]
+accent = "#C4A7E7"
+path = "#E0DEF4"
+muted = "#908CAA"
+error = "#EB6F92"

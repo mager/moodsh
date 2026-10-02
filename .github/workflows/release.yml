@@ -1,0 +1,75 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate version tag
+        shell: python
+        run: |
+          import os, tomllib
+          with open('Cargo.toml', 'rb') as f:
+              version = tomllib.load(f)['package']['version']
+          assert os.environ['GITHUB_REF_NAME'] == 'v' + version, 'Tag must match Cargo.toml'
+      - run: cargo test --locked
+      - run: cargo build --locked --release --target ${{ matrix.target }}
+      - name: Package binary and license
+        shell: python
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          import hashlib, os, pathlib, shutil
+          target = os.environ['TARGET']
+          name = f"moodsh-{os.environ['GITHUB_REF_NAME']}-{target}"
+          dest = pathlib.Path('package') / name
+          dest.mkdir(parents=True)
+          executable = 'moodsh.exe' if 'windows' in target else 'moodsh'
+          shutil.copy2(pathlib.Path('target') / target / 'release' / executable, dest)
+          for file in ('README.md', 'LICENSE', 'CHANGELOG.md'):
+              shutil.copy2(file, dest)
+          pathlib.Path('dist').mkdir()
+          kind = 'zip' if 'windows' in target else 'gztar'
+          archive = pathlib.Path(shutil.make_archive('dist/' + name, kind, 'package', name))
+          archive.with_name(archive.name + '.sha256').write_text(hashlib.sha256(archive.read_bytes()).hexdigest() + '  ' + archive.name + '\n')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moodsh-${{ matrix.target }}
+          path: dist/*
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "Mood Shell $GITHUB_REF_NAME" --notes-file .github/release-notes.md

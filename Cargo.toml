@@ -1,0 +1,23 @@
+[package]
+name = "moodsh"
+version = "0.1.0"
+edition = "2024"
+description = "Make your shell feel like yours."
+license = "MIT"
+repository = "https://github.com/mager/moodsh"
+readme = "README.md"
+keywords = ["shell", "prompt", "theme", "terminal", "cli"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+crossterm = "0.29"
+dirs = "6"
+serde = { version = "1", features = ["derive"] }
+tempfile = "3"
+toml = "0.9"
+
+[profile.release]
+lto = "thin"
+strip = true
