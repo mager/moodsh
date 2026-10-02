@@ -2,6 +2,16 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## Website 0.1.0 — 2026-10-02
+
+The website is versioned independently; the CLI remains at 0.4.0.
+
+- Launch moodsh.vercel.app with interactive palette previews and platform-specific installation instructions.
+- Add a searchable theme gallery with portable Markdown downloads and author credit.
+- Make, import, remix, and download themes in the browser with live color and layout previews.
+- Open community submissions as prepared GitHub issues for review; no website account or database is required.
+- Keep preview backgrounds separate from the prompt-only theme format.
+
 ## 0.4.0 — 2026-10-02
 
 - Register native Tab completion for Mood Shell commands, options, layouts, and built-in moods in Zsh, Bash, and PowerShell; Zsh and Bash also complete theme file paths.

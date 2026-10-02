@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+import Terminal from '../../components/Terminal.astro';
+import { themes } from '../../lib/themes.mjs';
+---
+
+<Base
+  title="Theme gallery · Mood Shell"
+  page="themes"
+  description="Find a palette that feels like you. Preview, download, and remix portable Markdown themes for Mood Shell."
+>
+  <section class="gallery-heading section-pad">
+    <div>
+      <a class="eyebrow breadcrumb" href="/">
+        MOOD SHELL / THE GALLERY
+      </a>
+      <h1>
+        Find your
+        <br />
+        <span>kind of mood.</span>
+      </h1>
+      <p>
+        Good colors deserve good company.
+        <br />
+        Take a theme. Make it yours. Pass it on.
+      </p>
+    </div>
+    <div class="gallery-heading-action">
+      <span class="asterisk" aria-hidden="true">
+        ✳
+      </span>
+      <a class="button primary" href="/themes/share/">
+        Make & share a theme <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="gallery-content section-pad">
+    <div class="gallery-toolbar">
+      <div class="gallery-filters" aria-label="Filter themes">
+        <button data-filter="all" aria-pressed="true">
+          All moods <span>{themes.length}</span>
+        </button>
+        <button data-filter="dark" aria-pressed="false">
+          For dark terminals
+        </button>
+        <button data-filter="light" aria-pressed="false">
+          For light terminals
+        </button>
+      </div>
+      <label class="search-label">
+        <span class="sr-only">Search themes</span>
+        <span aria-hidden="true">⌕</span>
+        <input type="search" id="theme-search" placeholder="Find a mood…" />
+      </label>
+    </div>
+    <p class="gallery-caption">
+      Starter palettes + our first shared theme. Download a Markdown file, then{' '}
+      <code>moodsh theme apply theme-name.md</code>. Preview backdrops are not
+      included.
+    </p>
+    <div class="theme-grid">
+      {[themes[5], ...themes.slice(0, 5)].map((theme) => (
+        <article
+          class="theme-tile"
+          data-name={`${theme.name} ${theme.description} ${theme.author}`.toLowerCase()}
+          data-tone={theme.tone}
+        >
+          <Terminal theme={theme} />
+          <div class="theme-tile-meta">
+            <div>
+              <h2>{theme.title}</h2>
+              <span>
+                {theme.builtIn ? 'Built-in palette' : `By ${theme.author}`}
+              </span>
+            </div>
+            <div
+              class="palette-dots"
+              role="img"
+              aria-label={`Palette: ${theme.colors.join(', ')}`}
+            >
+              {theme.colors.map((color) => (
+                <span style={`background:${color}`}></span>
+              ))}
+            </div>
+          </div>
+          <p>{theme.description}</p>
+          <div class="theme-tile-actions">
+            <a href={`/themes/${theme.name}.md`} download={`${theme.name}.md`}>
+              Download .md <span aria-hidden="true">↓</span>
+            </a>
+            <a href={`/themes/share/?from=${theme.name}`}>
+              Remix <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+    <p id="empty-results" class="empty-results" hidden>
+      No moods match yet. Try another name or clear the filter.
+    </p>
+    <p id="gallery-status" role="status" class="sr-only"></p>
+    <div class="community-invite">
+      <div>
+        <span class="eyebrow">THE NEXT ONE COULD BE YOURS.</span>
+        <h2>
+          A very small community.
+          <br />
+          Room for your good taste.
+        </h2>
+        <p>
+          Share a palette and the story behind it. Submissions open on GitHub,
+          and reviewed themes join this gallery with your name attached.
+        </p>
+      </div>
+      <a class="button dark" href="/themes/share/">
+        Share your mood <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+</Base>
+<script>
+  let filter = 'all';
+  const search = document.querySelector<HTMLInputElement>('#theme-search')!;
+  function update() {
+    let count = 0;
+    document.querySelectorAll<HTMLElement>('.theme-tile').forEach((tile) => {
+      const show =
+        (filter === 'all' || tile.dataset.tone === filter) &&
+        tile.dataset.name!.includes(search.value.trim().toLowerCase());
+      tile.hidden = !show;
+      if (show) count++;
+    });
+    document.querySelector<HTMLElement>('#empty-results')!.hidden = count !== 0;
+    document.querySelector('#gallery-status')!.textContent =
+      `${count} ${count === 1 ? 'theme' : 'themes'} shown`;
+  }
+  search.addEventListener('input', update);
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-filter]')
+    .forEach((button) =>
+      button.addEventListener('click', () => {
+        filter = button.dataset.filter!;
+        document
+          .querySelectorAll('[data-filter]')
+          .forEach((el) =>
+            el.setAttribute('aria-pressed', String(el === button)),
+          );
+        update();
+      }),
+    );
+</script>

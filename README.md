@@ -14,6 +14,8 @@ dusk ~/code/moodsh
 
 Version **0.4.0** adds Tab completion when you connect your shell. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
+[Website](https://moodsh.vercel.app) · [Theme gallery](https://moodsh.vercel.app/themes/) · [Make and share a theme](https://moodsh.vercel.app/themes/share/)
+
 ## Install
 
 **Rust and Cargo are not required to use Mood Shell.** Download an archive from [Releases](https://github.com/mager/moodsh/releases) and extract it. Choose the archive for your platform (not GitHub's “Source code” download):
@@ -271,3 +273,7 @@ On Windows, use `python` and `target/debug/moodsh.exe` for the shell integration
 Versions follow [Semantic Versioning](https://semver.org/), starting at `0.1.0`. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out in the changelog. Update `Cargo.toml`, `Cargo.lock`, `CHANGELOG.md`, and `.github/release-notes.md` before tagging `vX.Y.Z`. Pushing a tag builds release archives and publishes them with SHA-256 checksums. The workflow rejects a tag that does not match the package version.
 
 [MIT](LICENSE).
+
+## Website and community
+
+Browse and remix palettes in the [theme gallery](https://moodsh.vercel.app/themes/). The browser theme maker imports and downloads portable Markdown, with live previews of all four colors and both layouts. Community submissions open on GitHub for review and author credit. See [web/README.md](web/README.md) to develop the site or review a submission.

@@ -1,0 +1,416 @@
+---
+import Base from '../layouts/Base.astro';
+import Terminal from '../components/Terminal.astro';
+import { themes, release, repo } from '../lib/themes.mjs';
+const builtins = themes.filter((t) => t.builtIn);
+---
+
+<Base>
+  <section class="hero section-pad">
+    <div class="hero-copy">
+      <a class="release-note" href={`${repo}/releases/tag/v${release}`}>
+        <span class="status-dot"></span> v{release} is here{' '}
+        <span class="release-divider">/</span> Now with Tab completion{' '}
+        <span aria-hidden="true">↗</span>
+      </a>
+      <h1>
+        Your shell.
+        <br />
+        Your{' '}
+        <span class="seriously">
+          state
+          <br class="desktop-break" /> of mind
+          <span class="headline-dot">.</span>
+        </span>
+      </h1>
+      <p class="hero-description">
+        You spend a lot of time here.
+        <br />
+        Make it feel like you.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="#install">
+          Find your mood <span aria-hidden="true">↓</span>
+        </a>
+        <a class="text-link" href="/themes/">
+          Explore the themes <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <p class="hero-footnote">Made in Rust. Runs on Mac, Windows & Linux.</p>
+    </div>
+    <div class="hero-playground">
+      <div class="color-tabs" aria-hidden="true">
+        <span>dusk</span>
+        <span>aurora</span>
+        <span>ember</span>
+      </div>
+      <div class="playground-tilt">
+        <Terminal large id="hero-terminal" />
+        <div class="preview-controls">
+          <div class="preview-control-heading">
+            <span>CHANGE THE MOOD</span>
+            <span class="preview-hint">go on, try one ↙</span>
+          </div>
+          <div class="mood-options">
+            {builtins.map((theme, index) => (
+              <button
+                type="button"
+                class="mood-option"
+                data-theme={theme.name}
+                aria-pressed={index === 0}
+              >
+                <span
+                  class="mood-swatch"
+                  style={`background:${theme.colors[0]}`}
+                  aria-hidden="true"
+                ></span>
+                {theme.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div class="playground-caption">
+        <span class="drawn-arrow" aria-hidden="true">
+          ↖
+        </span>
+        <p>
+          A real prompt. Your colors.
+          <br />
+          <span>Backgrounds shown for preview only.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+  <div class="compatibility-strip">
+    <span>YOUR SHELL, WITH A LITTLE MORE SOUL.</span>
+    <div>
+      <span>Zsh</span>
+      <i aria-hidden="true">✳</i>
+      <span>Bash</span>
+      <i aria-hidden="true">✳</i>
+      <span>PowerShell 7</span>
+      <i aria-hidden="true">✳</i>
+      <span>No special font needed</span>
+    </div>
+  </div>
+  <section class="intro-section section-pad" id="how-it-works">
+    <div>
+      <span class="eyebrow">LESS FIDDLING. MORE FEELING.</span>
+      <h2>
+        A small toolkit.
+        <br />A personal space.
+      </h2>
+    </div>
+    <div class="intro-copy">
+      <p>
+        Mood Shell brings color and character to the little line waiting for
+        your next command.
+      </p>
+      <p>
+        Pick a mood. Tweak the colors. Share what you make. Five palettes, two
+        layouts, and just enough room to make it yours.
+      </p>
+      <a class="text-link" href={`${repo}#find-your-mood`}>
+        Meet the toolkit <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="steps-section section-pad">
+    <div class="step">
+      <span class="step-num">01</span>
+      <h3>Pick a feeling.</h3>
+      <p>
+        Soft lavender or warm amber? Start with a mood and preview it before you
+        save.
+      </p>
+      <code>moodsh customize</code>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <h3>Make it yours.</h3>
+      <p>
+        Tune four colors. Go compact or give your prompt a second line. See
+        every change live.
+      </p>
+      <div
+        class="mini-colors"
+        role="group"
+        aria-label="Four customizable prompt colors"
+      >
+        {themes[0].colors.map((color) => (
+          <span style={`background:${color}`}>
+            <span class="sr-only">{color}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <h3>Pass the mood on.</h3>
+      <p>
+        Your theme is a Markdown file. Add a little backstory and give someone
+        else a new favorite.
+      </p>
+      <a class="text-link" href="/themes/share/">
+        Make a theme <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="community-section section-pad">
+    <div class="community-copy">
+      <span class="eyebrow">GOOD MOODS ARE CONTAGIOUS.</span>
+      <h2>
+        Made for you.
+        <br />
+        Better with
+        <br />
+        <span class="community-word">everyone.</span>
+      </h2>
+      <p>
+        A tiny corner of the internet for people who care what their terminal
+        feels like. Borrow a palette. Make a remix. Leave something for the next
+        person.
+      </p>
+      <a class="button dark" href="/themes/">
+        Visit the theme gallery <span aria-hidden="true">↗</span>
+      </a>
+      <span class="community-note">
+        Just getting started. Your theme could be next.
+      </span>
+    </div>
+    <div class="featured-theme">
+      <div class="featured-label">
+        <span>FROM THE GALLERY</span>
+        <span aria-hidden="true">✳</span>
+      </div>
+      <Terminal theme={themes[5]} />
+      <div class="featured-detail">
+        <div>
+          <h3>Afterhours</h3>
+          <span>by Andrew Mager</span>
+        </div>
+        <a
+          class="circle-link"
+          href="/themes/"
+          aria-label="Explore Afterhours and other themes"
+        >
+          ↗
+        </a>
+      </div>
+      <p>Pink, lavender, and a little room to breathe.</p>
+    </div>
+  </section>
+  <section class="markdown-section section-pad">
+    <div>
+      <span class="eyebrow">FOUR COLORS. ONE LITTLE FILE.</span>
+      <h2>
+        Share the colors.
+        <br />
+        Keep the story.
+      </h2>
+      <p>
+        The Rust does the work. Markdown makes it personal. Your theme is an
+        ordinary document you can read, edit, and take anywhere.
+      </p>
+      <a class="text-link" href={`${repo}/blob/main/themes/README.md`}>
+        Read the theme format <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+    <div class="markdown-sheet">
+      <div class="file-label">
+        <span>afterhours.md</span>
+        <span>↓ portable by design</span>
+      </div>
+      <pre><code><span class="code-title"># Afterhours</span>
+
+For the ideas that arrive late.
+
+<span class="code-fence">```moodsh</span>
+[mood]
+name = <span class="code-string">"afterhours"</span>
+layout = <span class="code-string">"two-line"</span>
+
+[mood.palette]
+accent = <span class="code-string">"#FF77CC"</span>
+path = <span class="code-string">"#E0DEF4"</span>
+muted = <span class="code-string">"#908CAA"</span>
+error = <span class="code-string">"#EB6F92"</span>
+<span class="code-fence">```</span></code></pre>
+    </div>
+  </section>
+  <section class="install-section section-pad" id="install">
+    <div class="install-heading">
+      <span class="eyebrow">MAKE YOURSELF AT HOME.</span>
+      <h2>
+        Your next prompt
+        <br />
+        starts here.
+      </h2>
+      <p>
+        Download the binary. Connect your shell.
+        <br />
+        No Rust installation required.
+      </p>
+    </div>
+    <div class="install-panel">
+      <label for="platform">Choose your platform</label>
+      <select id="platform">
+        <option value="mac-arm">macOS · Apple Silicon (M1 and newer)</option>
+        <option value="mac-intel">macOS · Intel</option>
+        <option value="linux">Linux · x64 (glibc)</option>
+        <option value="windows">Windows · x64 (PowerShell 7)</option>
+      </select>
+      <a
+        id="download-release"
+        class="button primary full-width"
+        href={`${repo}/releases/download/v${release}/moodsh-v${release}-aarch64-apple-darwin.tar.gz`}
+      >
+        Download moodsh v{release} <span aria-hidden="true">↓</span>
+      </a>
+      <div class="download-meta">
+        <a
+          id="download-checksum"
+          href={`${repo}/releases/download/v${release}/moodsh-v${release}-aarch64-apple-darwin.tar.gz.sha256`}
+        >
+          SHA-256 checksum ↗
+        </a>
+        <a href={`${repo}/releases/tag/v${release}`}>All downloads ↗</a>
+      </div>
+      <p class="install-instruction">
+        Extract the archive. In that folder, run:
+      </p>
+      <div class="command-block">
+        <pre id="install-code">mkdir -p "$HOME/.local/bin"
+install -m 755 ./moodsh "$HOME/.local/bin/moodsh"
+export PATH="$HOME/.local/bin:$PATH"</pre>
+        <button
+          class="copy-button"
+          data-copy="install-code"
+          aria-label="Copy install commands"
+        >
+          Copy
+        </button>
+      </div>
+      <p class="install-instruction" id="profile-instruction">
+        Add these lines to ~/.zshrc, then open a new terminal:
+      </p>
+      <div class="command-block">
+        <pre id="init-code">export PATH="$HOME/.local/bin:$PATH"
+eval "$(moodsh init zsh)"</pre>
+        <button
+          class="copy-button"
+          data-copy="init-code"
+          aria-label="Copy shell setup commands"
+        >
+          Copy
+        </button>
+      </div>
+      <p class="install-tip">
+        Then run <code>moodsh customize</code>. Use one prompt renderer at a
+        time. <a href={`${repo}#connect-your-shell`}>Full setup guide ↗</a>
+      </p>
+      <p class="install-limit" id="platform-note">
+        macOS builds are unsigned. See the setup guide if macOS blocks the
+        download.
+      </p>
+      <p class="sr-only" id="copy-status" role="status"></p>
+    </div>
+  </section>
+  <section class="scope-note section-pad">
+    <span aria-hidden="true">✳</span>
+    <p>
+      A little clarity: Mood Shell styles your <strong>prompt</strong> and adds
+      Tab completion. Backgrounds, blinking cursors, syntax highlighting, and
+      inline history suggestions are separate terminal or shell features.
+    </p>
+  </section>
+</Base>
+<script>
+  import { themes, release, repo } from '../lib/themes.mjs';
+  const terminal = document.querySelector<HTMLElement>('#hero-terminal')!;
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-theme]')
+    .forEach((button) =>
+      button.addEventListener('click', () => {
+        const theme = themes.find((t) => t.name === button.dataset.theme)!;
+        ['accent', 'path', 'muted', 'error'].forEach((role, index) =>
+          terminal.style.setProperty(`--${role}`, theme.colors[index]),
+        );
+        terminal.style.setProperty('--terminal-bg', theme.backdrop);
+        terminal.classList.toggle('light', theme.tone === 'light');
+        terminal
+          .querySelectorAll('[data-mood-name], [data-mood-label]')
+          .forEach((el) => (el.textContent = theme.name));
+        document
+          .querySelectorAll('[data-theme]')
+          .forEach((el) =>
+            el.setAttribute('aria-pressed', String(el === button)),
+          );
+      }),
+    );
+  const platforms = {
+    'mac-arm': {
+      target: 'aarch64-apple-darwin.tar.gz',
+      profile: '~/.zshrc',
+      shell: 'zsh',
+    },
+    'mac-intel': {
+      target: 'x86_64-apple-darwin.tar.gz',
+      profile: '~/.zshrc',
+      shell: 'zsh',
+    },
+    linux: {
+      target: 'x86_64-unknown-linux-gnu.tar.gz',
+      profile: '~/.bashrc',
+      shell: 'bash',
+    },
+    windows: {
+      target: 'x86_64-pc-windows-msvc.zip',
+      profile: 'your PowerShell profile ($PROFILE)',
+      shell: 'powershell',
+    },
+  };
+  const select = document.querySelector<HTMLSelectElement>('#platform')!;
+  select.addEventListener('change', () => {
+    const choice = platforms[select.value as keyof typeof platforms];
+    const windows = select.value === 'windows';
+    const link = `${repo}/releases/download/v${release}/moodsh-v${release}-${choice.target}`;
+    document.querySelector<HTMLAnchorElement>('#download-release')!.href = link;
+    document.querySelector<HTMLAnchorElement>('#download-checksum')!.href =
+      link + '.sha256';
+    document.querySelector('#install-code')!.textContent = windows
+      ? "$dest = Join-Path $env:LOCALAPPDATA 'Programs\\moodsh'\nNew-Item -ItemType Directory -Force $dest | Out-Null\nCopy-Item .\\moodsh.exe (Join-Path $dest 'moodsh.exe')\n$env:Path = \"$dest;$env:Path\""
+      : 'mkdir -p "$HOME/.local/bin"\ninstall -m 755 ./moodsh "$HOME/.local/bin/moodsh"\nexport PATH="$HOME/.local/bin:$PATH"';
+    document.querySelector('#init-code')!.textContent = windows
+      ? '$env:Path = "$env:LOCALAPPDATA\\Programs\\moodsh;$env:Path"\nInvoke-Expression (& moodsh init powershell | Out-String)'
+      : 'export PATH="$HOME/.local/bin:$PATH"\neval "$(moodsh init ' +
+        choice.shell +
+        ')"';
+    document.querySelector('#profile-instruction')!.textContent =
+      `Add these lines to ${choice.profile}, then open a new terminal:`;
+    document.querySelector('#platform-note')!.textContent = windows
+      ? 'If $PROFILE does not exist, follow the setup guide to create it first.'
+      : select.value === 'linux'
+        ? 'Uses Bash by default. The setup guide also covers Zsh.'
+        : 'macOS builds are unsigned. See the setup guide if macOS blocks the download.';
+  });
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-copy]')
+    .forEach((button) =>
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(
+            document.getElementById(button.dataset.copy!)!.textContent!,
+          );
+          button.textContent = 'Copied!';
+          document.querySelector('#copy-status')!.textContent =
+            'Commands copied.';
+          setTimeout(() => (button.textContent = 'Copy'), 2000);
+        } catch {
+          document.querySelector('#copy-status')!.textContent =
+            'Copy was unavailable. Select the commands and copy them manually.';
+        }
+      }),
+    );
+</script>

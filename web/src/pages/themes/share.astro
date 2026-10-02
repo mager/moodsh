@@ -1,0 +1,333 @@
+---
+import Base from '../../layouts/Base.astro';
+import Terminal from '../../components/Terminal.astro';
+import { themes } from '../../lib/themes.mjs';
+---
+
+<Base
+  title="Make & share a theme · Mood Shell"
+  page="themes"
+  description="Make a Mood Shell palette in your browser, download it as Markdown, and submit it to the community gallery."
+>
+  <section class="maker-heading section-pad">
+    <a class="eyebrow breadcrumb" href="/themes/">
+      ← BACK TO THE GALLERY
+    </a>
+    <h1>
+      A little color.
+      <br />
+      <span>All your own.</span>
+    </h1>
+    <p>Make it here. Try it in your terminal. Share it with the shell fam.</p>
+  </section>
+  <noscript>
+    <div class="no-js section-pad">
+      The live theme maker needs JavaScript. You can still{' '}
+      <a href="/themes/">download themes from the gallery</a> or{' '}
+      <a href="https://github.com/mager/moodsh/issues/new?template=theme.md">
+        submit your Markdown theme on GitHub
+      </a>
+      .
+    </div>
+  </noscript>
+  <section class="maker-layout section-pad">
+    <form id="theme-form" class="maker-form">
+      <div class="field">
+        <label for="starting-theme">Start with a mood</label>
+        <select id="starting-theme">
+          {themes.map((theme) => (
+            <option value={theme.name}>{theme.title}</option>
+          ))}
+        </select>
+      </div>
+      <label class="import-line" for="import-file">
+        Already have a theme? Import your exported Markdown.
+        <input
+          id="import-file"
+          type="file"
+          accept=".md,.markdown,text/markdown,text/plain"
+        />
+      </label>
+      <div class="field">
+        <label for="theme-name">Theme name</label>
+        <input
+          id="theme-name"
+          name="name"
+          value="my-good-mood"
+          required
+          pattern="[A-Za-z0-9_-]{1,48}"
+          maxlength="48"
+          autocomplete="off"
+          aria-describedby="name-help"
+        />
+        <small id="name-help">
+          Letters, numbers, hyphens, and underscores. This becomes your
+          filename.
+        </small>
+      </div>
+      <div class="field">
+        <label for="theme-layout">Prompt layout</label>
+        <select id="theme-layout">
+          <option value="compact">Compact · everything on one line</option>
+          <option value="two-line">Two-line · a little more room</option>
+        </select>
+      </div>
+      <fieldset class="color-fieldset">
+        <legend>Your four colors</legend>
+        {['accent', 'path', 'muted', 'error'].map((role, index) => (
+          <div class="color-input-row">
+            <input
+              type="color"
+              id={`picker-${role}`}
+              aria-label={`Choose ${role} color`}
+              value={themes[0].colors[index]}
+              data-color-picker={index}
+            />
+            <label for={`hex-${role}`}>
+              {['Accent', 'Directory', 'Muted', 'Error'][index]}
+              <span>
+                {
+                  [
+                    'The prompt arrow',
+                    'Your current path',
+                    'The two-line mood name',
+                    'Failed command status',
+                  ][index]
+                }
+              </span>
+            </label>
+            <input
+              id={`hex-${role}`}
+              type="text"
+              value={themes[0].colors[index]}
+              pattern="#[0-9A-Fa-f]{6}"
+              required
+              maxlength="7"
+              spellcheck="false"
+              aria-label={`${role} hex color`}
+              data-color-hex={index}
+            />
+          </div>
+        ))}
+      </fieldset>
+      <div class="field">
+        <label for="theme-author">Your name or handle</label>
+        <input
+          id="theme-author"
+          maxlength="80"
+          placeholder="Who should get the credit?"
+          autocomplete="nickname"
+        />
+      </div>
+      <div class="field">
+        <label for="theme-story">
+          The story behind it <span class="optional">(optional)</span>
+        </label>
+        <textarea
+          id="theme-story"
+          maxlength="300"
+          placeholder="Late-night builds? Your favorite record? Tell us what inspired the colors."
+        ></textarea>
+      </div>
+      <p id="maker-error" class="maker-error" role="alert"></p>
+      <div class="maker-actions">
+        <button type="submit" class="button primary">
+          Download your Markdown <span aria-hidden="true">↓</span>
+        </button>
+        <p>
+          Try your file with{' '}
+          <code id="apply-command">
+            moodsh theme preview --file my-good-mood.md
+          </code>
+          . Happy with it? Submit it for the gallery.
+        </p>
+        <label class="license-check">
+          <input type="checkbox" id="license-check" />I made this palette or
+          have permission to share it under the MIT license.
+        </label>
+        <button type="button" id="submit-theme" class="button dark" disabled>
+          Submit on GitHub <span aria-hidden="true">↗</span>
+        </button>
+        <p>
+          GitHub sign-in is needed to submit. You’ll review your issue before
+          posting. Accepted themes appear in the gallery with your credit;
+          posting an issue doesn’t publish automatically.
+        </p>
+        <p id="maker-status" class="maker-status" role="status"></p>
+      </div>
+    </form>
+    <div class="maker-preview">
+      <div class="preview-topline">
+        <span>YOUR PROMPT, LIVE</span>
+        <label for="backdrop">
+          Preview backdrop
+          <input type="color" id="backdrop" value={themes[0].backdrop} />
+        </label>
+      </div>
+      <Terminal id="maker-terminal" errorPreview />
+      <p class="preview-disclaimer">
+        The backdrop is just for this preview. Your Markdown file changes prompt
+        colors and layout only.
+      </p>
+      <details class="maker-document" open>
+        <summary>Your portable theme file</summary>
+        <pre id="document-preview"></pre>
+      </details>
+    </div>
+  </section>
+</Base>
+<script>
+  import {
+    themes,
+    validateTheme,
+    themeDocument,
+    submissionUrl,
+  } from '../../lib/themes.mjs';
+  import { importTheme } from '../../lib/import-theme.mjs';
+  const form = document.querySelector<HTMLFormElement>('#theme-form')!;
+  const field = (id: string) => document.getElementById(id) as HTMLInputElement;
+  const error = document.querySelector('#maker-error')!;
+  const status = document.querySelector('#maker-status')!;
+  const terminal = document.querySelector<HTMLElement>('#maker-terminal')!;
+  const hexes = [
+    ...document.querySelectorAll<HTMLInputElement>('[data-color-hex]'),
+  ];
+  const pickers = [
+    ...document.querySelectorAll<HTMLInputElement>('[data-color-picker]'),
+  ];
+  const initial =
+    themes.find(
+      (t) => t.name === new URLSearchParams(location.search).get('from'),
+    ) || themes[0];
+  function draft() {
+    return {
+      name: field('theme-name').value,
+      layout: field('theme-layout').value,
+      colors: hexes.map((input) => input.value),
+      author: field('theme-author').value,
+      description: field('theme-story').value,
+    };
+  }
+  function render() {
+    try {
+      const theme = validateTheme(draft());
+      ['accent', 'path', 'muted', 'error'].forEach((role, index) =>
+        terminal.style.setProperty(`--${role}`, theme.colors[index]),
+      );
+      terminal.dataset.layout = theme.layout;
+      terminal
+        .querySelectorAll('[data-mood-name], [data-mood-label]')
+        .forEach(
+          (el) =>
+            (el.textContent =
+              theme.name + (el.hasAttribute('data-mood-label') ? ' ' : '')),
+        );
+      document.querySelector('#document-preview')!.textContent =
+        themeDocument(theme);
+      document.querySelector('#apply-command')!.textContent =
+        `moodsh theme preview --file ./${theme.name}.md`;
+      error.textContent = '';
+      return true;
+    } catch (e) {
+      error.textContent =
+        e instanceof Error ? e.message : 'Please check your theme values.';
+      return false;
+    }
+  }
+  function setPalette(theme: {
+    name: string;
+    layout: string;
+    colors: string[];
+    backdrop?: string;
+    tone?: string;
+  }) {
+    hexes.forEach((input, index) => {
+      input.value = theme.colors[index];
+      pickers[index].value = theme.colors[index];
+    });
+    field('theme-layout').value = theme.layout;
+    if (theme.backdrop) field('backdrop').value = theme.backdrop;
+    terminal.style.setProperty('--terminal-bg', field('backdrop').value);
+    terminal.classList.toggle('light', theme.tone === 'light');
+    render();
+  }
+  field('starting-theme').value = initial.name;
+  setPalette(initial);
+  field('starting-theme').addEventListener('change', () =>
+    setPalette(themes.find((t) => t.name === field('starting-theme').value)!),
+  );
+  pickers.forEach((input, index) =>
+    input.addEventListener('input', () => {
+      hexes[index].value = input.value.toUpperCase();
+      render();
+    }),
+  );
+  hexes.forEach((input, index) =>
+    input.addEventListener('input', () => {
+      if (/^#[0-9a-f]{6}$/i.test(input.value))
+        pickers[index].value = input.value;
+      render();
+    }),
+  );
+  ['theme-name', 'theme-layout', 'theme-author', 'theme-story'].forEach((id) =>
+    field(id).addEventListener('input', render),
+  );
+  field('backdrop').addEventListener('input', () => {
+    terminal.style.setProperty('--terminal-bg', field('backdrop').value);
+  });
+  field('license-check').addEventListener('change', () => {
+    (document.querySelector('#submit-theme') as HTMLButtonElement).disabled =
+      !field('license-check').checked;
+  });
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!form.reportValidity() || !render()) return;
+    const theme = draft();
+    const url = URL.createObjectURL(
+      new Blob([themeDocument(theme)], { type: 'text/markdown;charset=utf-8' }),
+    );
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = theme.name + '.md';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    status.textContent =
+      'Your Markdown download is ready. Preview it locally before applying it.';
+  });
+  document.querySelector('#submit-theme')!.addEventListener('click', () => {
+    if (!field('license-check').checked || !form.reportValidity() || !render())
+      return;
+    if (!field('theme-author').value.trim()) {
+      error.textContent =
+        'Add your name or handle so we can credit you in the gallery.';
+      field('theme-author').focus();
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = submissionUrl(draft());
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.click();
+    status.textContent =
+      'GitHub opens with your theme filled in. Review it and submit the issue there.';
+  });
+  field('import-file').addEventListener('change', async () => {
+    const file = field('import-file').files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > 65536)
+        throw new Error('Theme files must be 64 KiB or smaller.');
+      const bytes = await file.arrayBuffer();
+      const document = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      const theme = importTheme(document);
+      field('theme-name').value = theme.name;
+      setPalette(theme);
+      status.textContent =
+        'Palette imported. Add your credit and story before sharing.';
+    } catch (e) {
+      error.textContent =
+        e instanceof Error ? e.message : 'Could not read that theme.';
+    }
+    field('import-file').value = '';
+  });
+</script>
