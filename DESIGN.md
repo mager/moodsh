@@ -6,7 +6,7 @@ A developer at their desk in afternoon light, trying colors as casually as choos
 
 ## Color
 
-Committed lavender canvas, deep plum ink, vivid violet actions, mint and apricot accents. Neutrals are tinted. Named mood palettes come directly from the Rust implementation and remain exact hex values in previews. Dark terminal backdrops are illustrative and clearly separate from downloadable prompt palettes.
+White canvas with quiet near-white secondary surfaces, deep plum ink, and vivid violet actions and headline accents. Mint and apricot stay confined to small palette swatches. The creator explicitly prefers a neutral white background with the purple identity retained. Named mood palettes come directly from the Rust implementation and remain exact hex values in previews. Dark terminal backdrops are illustrative and clearly separate from downloadable prompt palettes.
 
 ## Typography
 
