@@ -1,9 +1,9 @@
-Mood Shell 0.5.0 adds **Git shortcuts**: 25 familiar names from the Oh My Zsh Git vocabulary, implemented natively for Zsh, Bash, and PowerShell 7.
+Mood Shell 0.6.0 adds **gprom** to the opt-in Git shortcut set on Zsh, Bash, and PowerShell 7.
 
-Run `moodsh shortcuts git` to inspect every expansion. To enable them, add `--shortcuts git` to your existing `moodsh init` line and open a new shell. Try `gst`, `gaa`, `gcmsg "message"`, `gco branch`, or `glog`.
+`gprom` runs `git pull --rebase origin <main-branch>`. It resolves the branch when invoked, preferring a valid local `origin/HEAD`, then common names including `main` and `master`. Missing repository, origin, or branch metadata stops the shortcut before a pull. Extra arguments such as `--autostash` are forwarded literally. A pull fetches and rebases the current branch using normal Git behavior.
 
-Existing command names always win. PowerShell normally keeps its built-in `gc`, `gl`, and `gp`. PowerShell shortcuts raise a terminating error on Git failure and preserve `$LASTEXITCODE`; scripts that handle Git exit codes themselves should invoke `git` directly. Git is a separate prerequisite. This is a focused shortcut set, not an arbitrary shell-code loader; shortcuts stay out of Markdown themes and add no per-prompt work. Remove the flag and start a new shell to disable them.
+Keep `--shortcuts git` in your existing init line and open a new shell after upgrading. Existing `gprom` aliases, functions, and executables are preserved. `moodsh shortcuts git` shows all 26 shortcuts.
 
-Prompt colors, layouts, Markdown themes, Tab completion, config, and shell hooks remain compatible. No new Rust dependencies. No force-push or hard-reset shortcuts are included.
+PowerShell shortcuts raise a terminating error on Git failure and preserve `$LASTEXITCODE`; scripts that handle Git exit codes themselves should invoke `git` directly. Git is installed separately. No new Rust dependencies, configuration changes, or per-prompt work.
 
-Download the archive for your platform; Rust is not required. Every archive includes checksums, documentation, and an Afterhours example theme. Terminal backgrounds, inline history suggestions, syntax highlighting, animations, and Fish support remain outside this release.
+The release includes native Apple Silicon and Intel macOS, x64 Linux, and x64 Windows binaries with SHA-256 checksums. Rust is not required. Prompt themes, colors, layouts, and Tab completion remain compatible.

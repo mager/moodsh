@@ -2,6 +2,13 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.6.0 — 2026-10-03
+
+- Add opt-in `gprom` on Zsh, Bash, and PowerShell: pull and rebase from origin’s main branch.
+- Resolve the branch at invocation from local Git metadata, preferring a valid origin/HEAD and falling back to common branch names. Stop before pulling if discovery fails.
+- Preserve existing commands, pass branch names and extra arguments literally, and retain native Git failure handling.
+- Exercise branch resolution and real main/master rebases against disposable local repositories in cross-platform CI. No new dependencies or prompt-hook changes.
+
 ## 0.5.0 — 2026-10-02
 
 - Add 25 opt-in Git shortcuts with familiar Oh My Zsh names, enabled with `moodsh init <shell> --shortcuts git`.

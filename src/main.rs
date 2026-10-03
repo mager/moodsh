@@ -28,6 +28,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    #[command(name = "__git-main-branch", hide = true)]
+    GitMainBranch,
     /// Print shell integration. Add it to your shell profile (see README).
     Init {
         #[arg(value_enum)]
@@ -155,6 +157,7 @@ fn colors_enabled() -> bool {
 fn run() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
+        Command::GitMainBranch => println!("{}", shortcuts::git_main_branch()?),
         Command::Init {
             shell: target,
             shortcuts: enabled,
@@ -166,7 +169,7 @@ fn run() -> Result<()> {
                 InitShell::Powershell => CompletionShell::PowerShell,
             };
             let shortcut_script = enabled
-                .map(|_| shortcuts::init(target.into()))
+                .map(|_| shortcuts::init(target.into(), &std::env::current_exe()?))
                 .transpose()?;
             let mut completions = Vec::new();
             clap_complete::generate(
@@ -195,6 +198,7 @@ fn run() -> Result<()> {
             for (name, command) in shortcuts::GIT {
                 println!("  {name:6} {command}");
             }
+            println!("  gprom  git pull --rebase origin <main-branch> (resolved at invocation)");
             println!(
                 "\nEnable: add --shortcuts git to your moodsh init line, then open a new shell.\nExisting command names win. PowerShell usually keeps its built-in gc, gl, and gp.\nDisable: remove the flag and open a new shell. Git must be installed separately."
             );

@@ -2,15 +2,23 @@ use crate::prompt::Shell;
 use anyhow::{Result, bail};
 use std::path::Path;
 
-pub fn init(shell: Shell, executable: &Path) -> Result<String> {
+pub fn quote_executable(shell: Shell, executable: &Path) -> Result<String> {
     let path = executable
         .to_str()
         .ok_or_else(|| anyhow::anyhow!("Executable path is not valid Unicode"))?;
     if path.chars().any(char::is_control) {
         bail!("Executable path contains control characters");
     }
-    let posix = format!("'{}'", path.replace('\'', "'\\''"));
-    let powershell = format!("'{}'", path.replace('\'', "''"));
+    Ok(if matches!(shell, Shell::Powershell) {
+        format!("'{}'", path.replace('\'', "''"))
+    } else {
+        format!("'{}'", path.replace('\'', "'\\''"))
+    })
+}
+
+pub fn init(shell: Shell, executable: &Path) -> Result<String> {
+    let posix = quote_executable(Shell::Bash, executable)?;
+    let powershell = quote_executable(Shell::Powershell, executable)?;
     let script = match shell {
         Shell::Zsh => r#"# Mood Shell: literal prompt text; do not evaluate directory names as shell code.
 setopt PROMPT_PERCENT

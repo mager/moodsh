@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.5.0** adds opt-in Git shortcuts with familiar Oh My Zsh names, while keeping your existing commands intact. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
+Version **0.6.0** adds `gprom` to the opt-in Git shortcuts: pull and rebase from origin’s main branch, resolved when you run it. Existing commands remain intact. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 [Website](https://moodsh.vercel.app) · [Theme gallery](https://moodsh.vercel.app/themes/) · [Make and share a theme](https://moodsh.vercel.app/themes/share/)
 
@@ -57,7 +57,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.5.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.6.0 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -137,7 +137,7 @@ eval "$(moodsh init bash --shortcuts git)"
 Invoke-Expression (& moodsh init powershell --shortcuts git | Out-String)
 ```
 
-Run `moodsh shortcuts git` to see all 25 expansions before enabling them. A few familiar ones:
+Run `moodsh shortcuts git` to see all 26 shortcuts before enabling them. A few familiar ones:
 
 | Shortcut | Runs |
 | --- | --- |
@@ -149,11 +149,14 @@ Run `moodsh shortcuts git` to see all 25 expansions before enabling them. A few 
 | `gd` / `gds` | Working-tree / staged diff |
 | `glog` | `git log --oneline --decorate --graph` |
 | `gl` / `gp` | `git pull` / `git push` |
+| `gprom` | `git pull --rebase origin <main-branch>` |
 | `gsta` / `gstp` | `git stash push` / `git stash pop` |
+
+`gprom` rebases your current branch onto origin’s main branch. It resolves the target on each invocation, using a valid local `origin/HEAD` first, then checking `main`, `trunk`, `mainline`, `default`, `stable`, and `master` in origin-tracking refs and finally local branches. Unlike Oh My Zsh’s common-name-first lookup, an explicit `origin/HEAD` wins. It does not contact a remote during discovery. If the repository, origin, or target is missing, it stops before pulling; fetch origin and set `git remote set-head origin <branch>` if needed. Extra arguments are forwarded literally, for example `gprom --autostash`. The pull itself fetches and rebases as normal, including Git’s usual conflict handling.
 
 These are a focused, documented subset of [Oh My Zsh's Git shortcuts](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git), not an importer for arbitrary shell code. For example, `gap` keeps its upstream meaning, `git apply`. There are no force-push or hard-reset shortcuts in this set. Commands such as `gp` and `gstp` still perform ordinary Git mutations when you explicitly run them.
 
-Existing aliases, functions, built-ins, and executables win at initialization. PowerShell normally keeps `gc` (Get-Content), `gl` (Get-Location), and `gp` (Get-ItemProperty); use their full Git commands there. Later definitions in your profile can also override these shortcuts. Zsh and Bash use aliases; PowerShell uses argument-forwarding functions that raise a terminating error if Git fails, preserving `$LASTEXITCODE` and a failed prompt status. In PowerShell scripts that handle Git exit codes themselves, use `git` directly. Git must be installed separately (Git 2.23+ for `gsw`/`gswc`). This does not install Git-specific completion on Bash or PowerShell.
+Existing aliases, functions, built-ins, and executables win at initialization. PowerShell normally keeps `gc` (Get-Content), `gl` (Get-Location), and `gp` (Get-ItemProperty); use their full Git commands there. Later definitions in your profile can also override these shortcuts. Zsh and Bash use aliases for fixed commands and a function for `gprom`; PowerShell uses argument-forwarding functions that raise a terminating error if Git fails, preserving `$LASTEXITCODE` and a failed prompt status. In PowerShell scripts that handle Git exit codes themselves, use `git` directly. Git must be installed separately (Git 2.23+ for `gsw`/`gswc`). This does not install Git-specific completion on Bash or PowerShell.
 
 Shortcuts are off by default, add no work to prompt rendering, and never come from a theme document. Remove the flag and start a new shell to disable them; reevaluating init without the flag does not remove aliases already loaded in the current session. No shell startup file is edited automatically.
 

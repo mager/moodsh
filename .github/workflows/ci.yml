@@ -38,6 +38,9 @@ jobs:
       - name: Exercise Git shortcuts
         shell: bash
         run: python scripts/test_shortcuts.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }}
+      - name: Exercise gprom against local Git repositories
+        shell: bash
+        run: python scripts/test_gprom.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }}
       - name: Exercise interactive picker in a PTY
         if: runner.os != 'Windows'
         run: python scripts/test_picker.py target/debug/moodsh
