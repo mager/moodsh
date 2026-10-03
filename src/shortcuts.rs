@@ -39,7 +39,7 @@ pub fn init(shell: Shell) -> Result<String> {
                 "if ! command -v {name} >/dev/null 2>&1; then alias {name}='{command}'; fi\n"
             )),
             Shell::Powershell => script.push_str(&format!(
-                "if (-not (Get-Command '{name}' -ErrorAction SilentlyContinue)) {{ function global:{name} {{ & {command} @args }} }}\n"
+                "if (-not (Get-Command '{name}' -ErrorAction SilentlyContinue)) {{ function global:{name} {{ & {command} @args; if ($LASTEXITCODE -ne 0) {{ throw \"Git exited with status $LASTEXITCODE\" }} }} }}\n"
             )),
             Shell::Plain => bail!("Choose a shell: zsh, bash, or powershell"),
         }

@@ -6,6 +6,7 @@ Versions follow Semantic Versioning. New features increment the minor version; c
 
 - Add 25 opt-in Git shortcuts with familiar Oh My Zsh names, enabled with `moodsh init <shell> --shortcuts git`.
 - Show every expansion with `moodsh shortcuts git`; preserve existing aliases, functions, built-ins, and executables on Zsh, Bash, and PowerShell.
+- Surface failed PowerShell shortcuts as terminating errors while preserving Git’s exit code.
 - Forward arguments without re-evaluating shell text. Keep shortcuts independent of theme files, configuration, and prompt rendering.
 - Test collision handling, repeated startup, quoted arguments, native Git invocation, and exit codes in real shells across CI platforms.
 

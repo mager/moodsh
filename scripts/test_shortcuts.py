@@ -67,19 +67,22 @@ if ((ga) -ne 'USER_FUNCTION') {{ throw 'Overwrote function' }}
 if ((Get-Alias gb).Definition -ne 'Write-Output') {{ throw 'Overwrote alias' }}
 if ((Get-Alias gc).Definition -ne $original) {{ throw 'Overwrote PowerShell built-in' }}
 if ((g --version) -notmatch '^git version') {{ throw 'Native Git invocation failed' }}
-function global:git {{ ConvertTo-Json -InputObject @($args) -Compress; $global:LASTEXITCODE = 7 }}
+$failed = $false
+try {{ g moodsh-nonexistent-test-command 2>$null }} catch {{ $failed = $true }}
+if (-not $failed -or $global:LASTEXITCODE -eq 0) {{ throw 'Git failure was hidden' }}
+function global:git {{ ConvertTo-Json -InputObject @($args) -Compress; $global:LASTEXITCODE = 0 }}
 $result = gcmsg {quote(payload)}
-if ($global:LASTEXITCODE -ne 7) {{ throw 'Lost exit code' }}
+if ($global:LASTEXITCODE -ne 0) {{ throw 'Lost exit code' }}
 $result
-$result = gst
-if ($global:LASTEXITCODE -ne 7) {{ throw 'Lost status exit code' }}
+$result = gst -v
+if ($global:LASTEXITCODE -ne 0) {{ throw 'Lost status exit code' }}
 $result
 """
         result = subprocess.run([pwsh, '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script], env=env, cwd=root, text=True, capture_output=True, timeout=20)
         assert result.returncode == 0, result.stdout + result.stderr
         lines = result.stdout.strip().splitlines()
         assert json.loads(lines[-2]) == ['commit', '--message', payload], result.stdout
-        assert json.loads(lines[-1]) == ['status'], result.stdout
+        assert json.loads(lines[-1]) == ['status', '-v'], result.stdout
         assert not (root / 'OWNED').exists()
         print('PASS powershell: collisions, repeated init, native Git, literal arguments, status')
     elif os.environ.get('CI'):
