@@ -10,7 +10,7 @@ const builtins = themes.filter((t) => t.builtIn);
     <div class="hero-copy">
       <a class="release-note" href={`${repo}/releases/tag/v${release}`}>
         <span class="status-dot"></span> v{release} is here{' '}
-        <span class="release-divider">/</span> Now with Tab completion{' '}
+        <span class="release-divider">/</span> Now with Git shortcuts{' '}
         <span aria-hidden="true">↗</span>
       </a>
       <h1>
@@ -154,6 +154,38 @@ const builtins = themes.filter((t) => t.builtIn);
       </p>
       <a class="text-link" href="/themes/share/">
         Make a theme <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="intro-section section-pad" id="shortcuts">
+    <div>
+      <span class="eyebrow">KEEP THE MUSCLE MEMORY.</span>
+      <h2>
+        Less typing.
+        <br />
+        Same Git.
+      </h2>
+    </div>
+    <div class="intro-copy">
+      <p>
+        Miss <code>gst</code>, <code>gco</code>, and <code>glog</code>? Bring 25
+        familiar Oh My Zsh Git shortcuts along. See every command with{' '}
+        <code>moodsh shortcuts git</code>.
+      </p>
+      <p>
+        Add <code>--shortcuts git</code> to your existing init line, then open a
+        new shell. For Zsh:
+      </p>
+      <div class="command-block">
+        <pre>eval "$(moodsh init zsh --shortcuts git)"</pre>
+      </div>
+      <p>
+        Opt-in on Zsh, Bash, and PowerShell. Your existing commands win;
+        PowerShell keeps built-in names such as <code>gc</code>, <code>gl</code>
+        , and <code>gp</code>. Git is installed separately.
+      </p>
+      <a class="text-link" href={`${repo}#git-shortcuts`}>
+        See the shortcuts &amp; setup <span aria-hidden="true">↗</span>
       </a>
     </div>
   </section>
@@ -321,8 +353,9 @@ eval "$(moodsh init zsh)"</pre>
     <span aria-hidden="true">✳</span>
     <p>
       A little clarity: Mood Shell styles your <strong>prompt</strong> and adds
-      Tab completion. Backgrounds, blinking cursors, syntax highlighting, and
-      inline history suggestions are separate terminal or shell features.
+      Tab completion and optional Git shortcuts. Backgrounds, blinking cursors,
+      syntax highlighting, and inline history suggestions are separate terminal
+      or shell features.
     </p>
   </section>
 </Base>

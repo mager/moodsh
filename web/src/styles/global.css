@@ -1831,3 +1831,7 @@ select {
     gap: 8px;
   }
 }
+
+#shortcuts .command-block {
+  margin-bottom: 24px;
+}

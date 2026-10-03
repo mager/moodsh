@@ -1,4 +1,4 @@
-export const release = '0.4.0';
+export const release = '0.5.0';
 export const repo = 'https://github.com/mager/moodsh';
 export const themes = [
   {
