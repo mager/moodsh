@@ -16,6 +16,10 @@ with tempfile.TemporaryDirectory(prefix="moodsh-test-") as root:
     env = dict(os.environ, MOODSH_CONFIG=str(root / "config.toml"), NO_COLOR="1", TERM="dumb")
     env["PATH"] = str(Path(binary).parent) + os.pathsep + env.get("PATH", "")
     subprocess.run([binary, "theme", "set", "dusk"], env=env, check=True, capture_output=True)
+    if "--terminal-path" in sys.argv:
+        subprocess.run([binary, "path", "--color", "terminal", "--format", "full"], env=env, check=True, capture_output=True)
+        env.pop("NO_COLOR", None)
+        env["TERM"] = "xterm-256color"
     tested = []
     for shell in ("bash", "zsh") if os.name != "nt" else ():
         exe = shutil.which(shell)
@@ -33,6 +37,8 @@ with tempfile.TemporaryDirectory(prefix="moodsh-test-") as root:
         assert proc.returncode == 0, output
         assert "[1]" in output, output
         assert "HOOK" in output, output
+        if "--terminal-path" in sys.argv:
+            assert "\x1b[39m" in output, repr(output)
         assert not (cwd / "OWNED_DOLLAR").exists(), output
         assert not (cwd / "OWNED_BACKTICK").exists(), output
         # Verify idempotency directly without relying on terminal echo.

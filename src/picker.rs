@@ -1,6 +1,6 @@
 use crate::{
-    config::{self, Config},
-    prompt::{self, Shell},
+    config,
+    prompt::{self, PathColor, PathSettings, Shell},
     theme::{Layout, Mood, NAMES, rgb},
 };
 use anyhow::{Context, Result, bail};
@@ -31,7 +31,7 @@ impl Drop for Screen {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum Field {
     Accent,
     Path,
@@ -73,6 +73,7 @@ struct Picker {
     selected: usize,
     layout: Layout,
     edit: Option<Edit>,
+    path: PathSettings,
 }
 
 #[derive(Debug, PartialEq)]
@@ -101,6 +102,7 @@ impl Picker {
             selected,
             layout: current.layout,
             edit: None,
+            path: PathSettings::default(),
         }
     }
 
@@ -128,6 +130,9 @@ impl Picker {
                 KeyCode::Esc => self.edit = None,
                 KeyCode::Enter if !edit.invalid_paste && rgb(&edit.value).is_ok() => {
                     *edit.field.color(&mut self.choices[self.selected]) = edit.value.clone();
+                    if edit.field == Field::Path {
+                        self.path.color = PathColor::Theme;
+                    }
                     self.edit = None;
                 }
                 KeyCode::Backspace => {
@@ -168,6 +173,13 @@ impl Picker {
             }
             KeyCode::Down | KeyCode::Char('j') => {
                 self.selected = (self.selected + 1) % self.choices.len()
+            }
+            KeyCode::Char('p' | 'P') => {
+                self.path.color = if self.path.color == PathColor::Theme {
+                    PathColor::Terminal
+                } else {
+                    PathColor::Theme
+                };
             }
             KeyCode::Tab => {
                 self.layout = if self.layout == Layout::Compact {
@@ -216,10 +228,25 @@ impl Picker {
                 "  {} {}{}\r\n",
                 if index == self.selected { ">" } else { " " },
                 mood.name,
-                if index == NAMES.len() { " (saved)" } else { "" }
+                if index == NAMES.len() {
+                    " (saved)"
+                } else if mood.name == "paper" {
+                    " (light terminal)"
+                } else {
+                    ""
+                }
             )?;
         }
         let mut mood = self.preview();
+        let path_color = if self
+            .edit
+            .as_ref()
+            .is_some_and(|edit| edit.field == Field::Path && rgb(&edit.value).is_ok())
+        {
+            PathColor::Theme
+        } else {
+            self.path.color
+        };
         write!(
             out,
             "\r\n  Preview / {}\r\n  {}\r\n  {}\r\n\r\n",
@@ -228,15 +255,35 @@ impl Picker {
             } else {
                 "two-line"
             },
-            prompt::render(&mood, "~/code/moodsh", 0, Shell::Plain, colors).replace('\n', "\r\n  "),
-            prompt::render(&mood, "~/code/moodsh", 1, Shell::Plain, colors).replace('\n', "\r\n  ")
+            prompt::render(
+                &mood,
+                self.path.sample(),
+                0,
+                Shell::Plain,
+                colors,
+                path_color
+            )
+            .replace('\n', "\r\n  "),
+            prompt::render(
+                &mood,
+                self.path.sample(),
+                1,
+                Shell::Plain,
+                colors,
+                path_color
+            )
+            .replace('\n', "\r\n  ")
         )?;
         for (index, field) in Field::ALL.iter().enumerate() {
             write!(
                 out,
                 "  {}  {}  {}\r\n",
                 index + 1,
-                field.color(&mut mood),
+                if *field == Field::Path && path_color == PathColor::Terminal {
+                    "terminal"
+                } else {
+                    field.color(&mut mood)
+                },
                 field.label()
             )?;
         }
@@ -259,7 +306,7 @@ impl Picker {
         } else {
             write!(
                 out,
-                "\r\n  Up/down choose   Tab layout   1-4 edit color\r\n  Enter save   Esc cancel   (nothing saved until Enter)\r\n  {}",
+                "\r\n  Up/down choose   Tab layout   1-4 color   P path: theme/terminal\r\n  Enter save   Esc cancel   (nothing saved until Enter)\r\n  {}",
                 if colors {
                     "Styles the prompt; terminal background stays the same."
                 } else {
@@ -277,7 +324,9 @@ pub fn run(path: &Path) -> Result<()> {
             "The picker needs an interactive terminal. Try `moodsh theme list` or `moodsh theme set dusk`"
         );
     }
-    let mut picker = Picker::new(config::load(path)?.mood);
+    let config = config::load(path)?;
+    let mut picker = Picker::new(config.mood);
+    picker.path = config.path;
     let colors =
         std::env::var_os("NO_COLOR").is_none() && std::env::var("TERM").as_deref() != Ok("dumb");
     terminal::enable_raw_mode()?;
@@ -328,8 +377,10 @@ pub fn run(path: &Path) -> Result<()> {
     if save {
         let mood = picker.preview();
         // A config made invalid while the picker was open must not be overwritten.
-        config::load(path)?;
-        config::save(path, &Config { mood: mood.clone() })?;
+        let mut config = config::load(path)?;
+        config.mood = mood.clone();
+        config.path.color = picker.path.color;
+        config::save(path, &config)?;
         println!("Saved {}. Your next prompt will use it.", mood.name);
     } else {
         println!("Kept your current mood.");
@@ -349,6 +400,28 @@ mod tests {
         for c in text.chars() {
             key(picker, KeyCode::Char(c));
         }
+    }
+
+    #[test]
+    fn terminal_path_preview_survives_browsing_and_cancelled_color_edit() {
+        let mut picker = Picker::new(Mood::builtin("paper").unwrap());
+        key(&mut picker, KeyCode::Char('p'));
+        assert_eq!(picker.path.color, PathColor::Terminal);
+        key(&mut picker, KeyCode::Up);
+        let mut out = Vec::new();
+        picker.draw(&mut out, true).unwrap();
+        assert!(
+            String::from_utf8(out)
+                .unwrap()
+                .contains("\x1b[39m~/code/moodsh")
+        );
+        type_text(&mut picker, "2ABCDEF");
+        key(&mut picker, KeyCode::Esc);
+        assert_eq!(picker.path.color, PathColor::Terminal);
+        type_text(&mut picker, "2ABCDEF");
+        key(&mut picker, KeyCode::Enter);
+        assert_eq!(picker.path.color, PathColor::Theme);
+        assert_eq!(picker.preview().palette.path, "#ABCDEF");
     }
 
     #[test]

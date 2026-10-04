@@ -1,5 +1,13 @@
 //! Portable theme documents. Markdown prose is ignored; only one labeled block is data.
-use crate::{config::Config, theme::Mood};
+use crate::theme::Mood;
+use serde::{Deserialize, Serialize};
+
+// Portable themes deliberately exclude machine-local directory preferences.
+#[derive(Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct ThemeDocument {
+    mood: Mood,
+}
 use anyhow::{Context, Result, bail};
 use std::{
     fs::{self, File},
@@ -75,7 +83,8 @@ fn parse(document: &str) -> Result<Mood> {
             "No theme found. Add a fenced moodsh block, or start with `moodsh theme new my-mood.md`"
         );
     }
-    let config: Config = toml::from_str(&data).context("Invalid TOML in the moodsh block")?;
+    let config: ThemeDocument =
+        toml::from_str(&data).context("Invalid TOML in the moodsh block")?;
     config.mood.validate()?;
     Ok(config.mood)
 }
@@ -104,7 +113,7 @@ pub fn write(path: &Path, mood: &Mood) -> Result<()> {
     ) {
         bail!("Use a .md or .markdown filename for a theme document");
     }
-    let data = toml::to_string_pretty(&Config { mood: mood.clone() })?;
+    let data = toml::to_string_pretty(&ThemeDocument { mood: mood.clone() })?;
     let document = format!(
         "# {name}\n\nA Mood Shell prompt theme. Add your inspiration, author credit, and preferred\nterminal background here. Only the fenced moodsh block below is read by Mood Shell.\n\n```moodsh\n{data}```\n\n## Color roles\n\n- `accent`: prompt arrow after a successful command.\n- `path`: directory text.\n- `muted`: mood name in the two-line layout.\n- `error`: failed-command status and arrow.\n\nLayout is `compact` or `two-line`. Colors use `#RRGGBB`.\nThis theme changes the prompt; it does not change your terminal background.\n\nPreview with `moodsh theme preview --file <this-file.md>`.\nApply with `moodsh theme apply <this-file.md>`.\n",
         name = mood.name,
@@ -133,7 +142,7 @@ mod tests {
     fn block() -> String {
         format!(
             "```moodsh\n{}```\n",
-            toml::to_string(&Config::default()).unwrap()
+            toml::to_string(&ThemeDocument::default()).unwrap()
         )
     }
 
@@ -177,6 +186,7 @@ mod tests {
             block().replace("#C4A7E7", "\\u001b[31m"),
             block().replace("name = \"dusk\"", "name = \"dusk\"\ncommand = \"echo hi\""),
             block().replace("compact", "animated"),
+            block().replace("```\n", "[path]\ncolor = \"terminal\"\n```\n"),
         ] {
             assert!(parse(&data).is_err(), "{data}");
         }

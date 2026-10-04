@@ -50,6 +50,15 @@ enum Command {
     },
     /// Pick a mood, edit its colors, and choose a layout with a live preview.
     Customize,
+    /// Show or save directory display preferences, independent of your theme.
+    Path {
+        /// Use the theme palette or your terminal's default foreground.
+        #[arg(long, value_enum)]
+        color: Option<prompt::PathColor>,
+        /// Shorten your home directory to ~, or show the full path.
+        #[arg(long, value_enum)]
+        format: Option<prompt::PathFormat>,
+    },
     /// Render a prompt (used by shell integrations).
     Prompt {
         #[arg(long, value_enum, default_value = "plain")]
@@ -209,13 +218,23 @@ fn run() -> Result<()> {
             println!("Mood Shell / built-in moods\n");
             for name in theme::NAMES {
                 let mood = Mood::builtin(name)?;
-                println!("  {name:8} {}", mood.palette.accent);
+                println!(
+                    "  {name:8} {}  {} terminals",
+                    mood.palette.accent,
+                    if name == "paper" { "light" } else { "dark" }
+                );
             }
             println!("\nPreview: moodsh theme preview dusk\nChoose:  moodsh customize");
         }
         Command::Theme {
             command: ThemeCommand::Preview { name, file, layout },
         } => {
+            // Explicit themes preview their portable palette; current previews include local preferences.
+            let settings = if name.is_none() && file.is_none() {
+                config::load(&config::path()?)?.path
+            } else {
+                prompt::PathSettings::default()
+            };
             let mut mood = match (name, file) {
                 (_, Some(path)) => theme_file::load(&path)?,
                 (Some(name), None) => Mood::builtin(&name)?,
@@ -228,11 +247,25 @@ fn run() -> Result<()> {
             println!("{}\n", mood.name);
             println!(
                 "{}git status",
-                prompt::render(&mood, "~/code/moodsh", 0, prompt::Shell::Plain, colors)
+                prompt::render(
+                    &mood,
+                    settings.sample(),
+                    0,
+                    prompt::Shell::Plain,
+                    colors,
+                    settings.color
+                )
             );
             println!(
                 "{}",
-                prompt::render(&mood, "~/code/moodsh", 1, prompt::Shell::Plain, colors)
+                prompt::render(
+                    &mood,
+                    settings.sample(),
+                    1,
+                    prompt::Shell::Plain,
+                    colors,
+                    settings.color
+                )
             );
             println!(
                 "\naccent {}  path {}  muted {}  error {}",
@@ -260,8 +293,9 @@ fn run() -> Result<()> {
             }
             let path = config::path()?;
             // Avoid silently destroying a malformed or newer configuration.
-            config::load(&path)?;
-            config::save(&path, &config::Config { mood })?;
+            let mut config = config::load(&path)?;
+            config.mood = mood;
+            config::save(&path, &config)?;
             println!(
                 "Saved {name} to {}. Your next prompt will use it.",
                 path.display()
@@ -304,12 +338,29 @@ fn run() -> Result<()> {
         } => {
             let mood = theme_file::load(&file)?;
             let path = config::path()?;
-            config::load(&path)?;
+            let mut config = config::load(&path)?;
             let name = mood.name.clone();
-            config::save(&path, &config::Config { mood })?;
+            config.mood = mood;
+            config::save(&path, &config)?;
             println!(
                 "Applied {name}. Your next prompt will use it. The Markdown file is unchanged."
             );
+        }
+        Command::Path { color, format } => {
+            let path = config::path()?;
+            let mut config = config::load(&path)?;
+            if let Some(color) = color {
+                config.path.color = color;
+            }
+            if let Some(format) = format {
+                config.path.format = format;
+            }
+            if color.is_some() || format.is_some() {
+                config::save(&path, &config)?;
+                println!("Saved path preferences. Your next prompt will use them.");
+            }
+            print!("{}", toml::to_string_pretty(&config.path)?);
+            println!("Terminal uses your terminal's default text color; theme uses the palette.");
         }
         Command::Customize => picker::run(&config::path()?)?,
         Command::Prompt {
@@ -319,7 +370,7 @@ fn run() -> Result<()> {
         } => {
             let config = config::load(&config::path()?)?;
             let cwd = std::env::current_dir().context("Cannot read current directory")?;
-            let path = prompt::directory(&cwd, dirs::home_dir().as_deref());
+            let path = config.path.directory(&cwd, dirs::home_dir().as_deref());
             // Shells capture stdout: IsTerminal would incorrectly disable prompt colors.
             print!(
                 "{}",
@@ -328,7 +379,8 @@ fn run() -> Result<()> {
                     &path,
                     status,
                     shell,
-                    colors_enabled() && !no_color
+                    colors_enabled() && !no_color,
+                    config.path.color
                 )
             );
         }

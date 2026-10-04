@@ -2,6 +2,14 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.7.0 — 2026-10-04
+
+- Add `moodsh path --color terminal` to render the directory in the terminal's default foreground when a theme's path color is hard to see. `--color theme` restores the palette color.
+- Choose home-relative (`~`) or full directory paths with `moodsh path --format home|full`. Keep existing defaults and always show the directory in both layouts.
+- Preserve personal path preferences when switching, applying, or editing themes. Keep them outside portable Markdown theme files.
+- Add a live `P` path-color toggle to the picker and label Paper for light terminals. Applying a custom path hex color returns to theme coloring.
+- Preserve shell hooks, safe path escaping, and no-color output; test the new settings in real shells and the picker. No new dependencies.
+
 ## 0.6.0 — 2026-10-03
 
 - Add opt-in `gprom` on Zsh, Bash, and PowerShell: pull and rebase from origin’s main branch.

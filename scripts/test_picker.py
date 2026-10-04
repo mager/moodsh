@@ -111,4 +111,13 @@ with tempfile.TemporaryDirectory() as root:
     absent = Path(root) / "absent.toml"
     pick(absent, b"1FFFFFF\r\x1b")
     assert not absent.exists(), "Cancel created a new config"
+    subprocess.run([binary, "path", "--color", "terminal", "--format", "full"], env=dict(os.environ, MOODSH_CONFIG=str(config)), check=True, capture_output=True)
+    output = pick(config, b"j\r")
+    assert b"\x1b[39m/code/moodsh" in output
+    assert tomllib.loads(config.read_text())["path"] == {"color": "terminal", "format": "full"}
+    saved = config.read_text()
+    pick(config, b"pq")
+    assert config.read_text() == saved, "Cancelled path toggle changed config"
+    pick(config, b"p\r")
+    assert tomllib.loads(config.read_text())["path"]["color"] == "theme"
     print("PASS picker: live colors, paste, validation, save/cancel, small terminals, cleanup")

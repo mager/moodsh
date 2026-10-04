@@ -11,6 +11,8 @@ use std::{
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub mood: Mood,
+    #[serde(default)]
+    pub path: crate::prompt::PathSettings,
 }
 
 pub fn path() -> Result<PathBuf> {

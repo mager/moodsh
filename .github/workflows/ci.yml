@@ -35,6 +35,9 @@ jobs:
             echo "::error title=Shell integration test failed::$(tail -n 1 shell-test.log)"
             exit 1
           }
+      - name: Exercise terminal-colored directory paths
+        shell: bash
+        run: python scripts/test_shells.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }} --terminal-path
       - name: Exercise Git shortcuts
         shell: bash
         run: python scripts/test_shortcuts.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }}

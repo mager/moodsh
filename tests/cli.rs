@@ -251,3 +251,92 @@ fn untrusted_theme_errors_cannot_inject_terminal_controls() {
     assert!(!error.contains(['\x1b', '\x07', '\u{202e}']));
     assert!(!config.exists());
 }
+
+#[test]
+fn path_preferences_survive_theme_changes_but_do_not_travel_in_theme_files() {
+    let dir = tempfile::tempdir().unwrap();
+    let config = dir.path().join("config.toml");
+    assert!(run(&config, &["path"]).status.success());
+    assert!(
+        !config.exists(),
+        "Inspecting preferences must not write config"
+    );
+    assert!(
+        run(
+            &config,
+            &["path", "--color", "terminal", "--format", "full"]
+        )
+        .status
+        .success()
+    );
+    let file = dir.path().join("export.md");
+    let file_arg = file.to_str().unwrap();
+    for args in [
+        vec!["theme", "set", "paper"],
+        vec!["theme", "export", file_arg],
+        vec!["theme", "apply", file_arg],
+    ] {
+        assert!(run(&config, &args).status.success());
+        let settings = String::from_utf8(run(&config, &["path"]).stdout).unwrap();
+        assert!(settings.contains("color = \"terminal\""));
+        assert!(settings.contains("format = \"full\""));
+    }
+    let exported = std::fs::read_to_string(&file).unwrap();
+    assert!(!exported.contains("[path]"));
+    let saved = std::fs::read_to_string(&config).unwrap();
+    assert!(!run(&config, &["path", "--color", "nope"]).status.success());
+    assert_eq!(std::fs::read_to_string(&config).unwrap(), saved);
+    std::fs::write(&config, "broken = [").unwrap();
+    assert!(
+        !run(&config, &["path", "--color", "terminal"])
+            .status
+            .success()
+    );
+    assert_eq!(std::fs::read_to_string(&config).unwrap(), "broken = [");
+}
+
+#[test]
+fn terminal_path_is_visible_in_both_layouts_and_no_color_still_works() {
+    let dir = tempfile::tempdir().unwrap();
+    let config = dir.path().join("config.toml");
+    assert!(
+        run(
+            &config,
+            &["path", "--color", "terminal", "--format", "full"]
+        )
+        .status
+        .success()
+    );
+    for layout in ["compact", "two-line"] {
+        assert!(
+            run(&config, &["theme", "set", "paper", "--layout", layout])
+                .status
+                .success()
+        );
+        let output = Command::new(env!("CARGO_BIN_EXE_moodsh"))
+            .env("MOODSH_CONFIG", &config)
+            .env_remove("NO_COLOR")
+            .env("TERM", "xterm-256color")
+            .current_dir(dir.path())
+            .args(["prompt", "--status", "5"])
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        let prompt = String::from_utf8(output.stdout).unwrap();
+        let cwd = std::fs::canonicalize(dir.path()).unwrap();
+        let cwd = cwd.display().to_string();
+        let cwd = cwd.strip_prefix(r"\\?\").unwrap_or(&cwd);
+        assert!(
+            prompt.contains(&format!("\x1b[39m{cwd}\x1b[0m")),
+            "{prompt:?}"
+        );
+        assert!(
+            !prompt.contains("38;2;38;50;56"),
+            "Paper's dark path color must not leak"
+        );
+        assert!(prompt.contains("[5]"));
+        let plain = run(&config, &["prompt", "--no-color"]);
+        assert!(plain.status.success());
+        assert!(!String::from_utf8(plain.stdout).unwrap().contains('\x1b'));
+    }
+}
