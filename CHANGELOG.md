@@ -2,6 +2,12 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.7.1 — 2026-10-04
+
+- Default directory text to the terminal's normal foreground, including older configs without a path-color preference. Keep explicit `theme` or `terminal` choices intact.
+- Keep `~/…` as the default format. Use `moodsh path --color theme` for palette coloring.
+- Applying an explicit `theme set --path '#RRGGBB'` now enables that color, matching the picker. Named/file theme previews still show the author's palette.
+
 ## 0.7.0 — 2026-10-04
 
 - Add `moodsh path --color terminal` to render the directory in the terminal's default foreground when a theme's path color is hard to see. `--color theme` restores the palette color.

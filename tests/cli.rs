@@ -346,3 +346,19 @@ fn terminal_path_is_visible_in_both_layouts_and_no_color_still_works() {
         assert!(!String::from_utf8(plain.stdout).unwrap().contains('\x1b'));
     }
 }
+
+#[test]
+fn explicit_hex_path_color_enables_theme_coloring_without_resetting_format() {
+    let dir = tempfile::tempdir().unwrap();
+    let config = dir.path().join("config.toml");
+    assert!(run(&config, &["path", "--format", "full"]).status.success());
+    assert!(
+        run(&config, &["theme", "set", "paper", "--path", "#ABCDEF"])
+            .status
+            .success()
+    );
+    let saved = std::fs::read_to_string(&config).unwrap();
+    assert!(saved.contains("color = \"theme\""));
+    assert!(saved.contains("format = \"full\""));
+    assert!(saved.contains("#ABCDEF"));
+}

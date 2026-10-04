@@ -233,7 +233,10 @@ fn run() -> Result<()> {
             let settings = if name.is_none() && file.is_none() {
                 config::load(&config::path()?)?.path
             } else {
-                prompt::PathSettings::default()
+                prompt::PathSettings {
+                    color: prompt::PathColor::Theme,
+                    ..prompt::PathSettings::default()
+                }
             };
             let mut mood = match (name, file) {
                 (_, Some(path)) => theme_file::load(&path)?,
@@ -276,6 +279,7 @@ fn run() -> Result<()> {
             command: ThemeCommand::Set { name, overrides },
         } => {
             let mut mood = Mood::builtin(&name)?;
+            let explicit_path_color = overrides.path.is_some();
             if let Some(value) = overrides.accent {
                 mood.palette.accent = value;
             }
@@ -295,6 +299,9 @@ fn run() -> Result<()> {
             // Avoid silently destroying a malformed or newer configuration.
             let mut config = config::load(&path)?;
             config.mood = mood;
+            if explicit_path_color {
+                config.path.color = prompt::PathColor::Theme;
+            }
             config::save(&path, &config)?;
             println!(
                 "Saved {name} to {}. Your next prompt will use it.",

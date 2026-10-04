@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.7.0** adds directory display controls: choose a full path or `~/…`, and use your terminal’s normal text color when a theme’s path is hard to see. Preferences survive theme changes. Opt-in Git shortcuts include `gprom` to pull and rebase from origin’s main branch. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
+Version **0.7.1** makes the terminal’s normal text color the default for directories. Directory controls let you choose a full path or `~/…`, or opt into the theme’s path color. Preferences survive theme changes. Opt-in Git shortcuts include `gprom` to pull and rebase from origin’s main branch. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 [Website](https://moodsh.vercel.app) · [Theme gallery](https://moodsh.vercel.app/themes/) · [Make and share a theme](https://moodsh.vercel.app/themes/share/)
 
@@ -57,7 +57,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.7.0 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.7.1 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -162,15 +162,15 @@ Shortcuts are off by default, add no work to prompt rendering, and never come fr
 
 ## Keep your directory readable
 
-The current directory is always part of both layouts. If a theme's path blends into your terminal background, use your terminal's default text color:
+The current directory is always part of both layouts. It uses your terminal's normal text color by default, so changing themes does not give the path a mismatched color. Existing explicit color preferences are preserved. To use the theme's palette instead:
 
 ```sh
-moodsh path --color terminal
+moodsh path --color theme
 ```
 
 Prefer an absolute path such as `/Users/you/Code/moodsh` or `C:\Users\you\Code\moodsh`? Run `moodsh path --format full`. The default `--format home` shortens your home directory to `~`; it does not truncate other path components. Paths use the process's working directory, so symbolic links may show their resolved location.
 
-`moodsh path` shows your preferences. Restore the defaults with `moodsh path --color theme --format home`. These settings apply on the next prompt, persist across theme changes, and stay in your local TOML config rather than exported Markdown themes. This uses your terminal's configured foreground; it does not detect the background or guarantee contrast for every terminal profile.
+`moodsh path` shows your preferences. Restore the defaults with `moodsh path --color terminal --format home`. These settings apply on the next prompt, persist across theme changes, and stay in your local TOML config rather than exported Markdown themes. This uses your terminal's configured foreground; it does not detect the background or guarantee contrast for every terminal profile.
 
 In `moodsh customize`, **P** toggles theme/terminal path color with a live preview. Editing and applying a path hex color with **2** returns to theme coloring. Enter saves; Esc cancels. `moodsh theme preview` includes your path preferences; previewing a named mood or a file shows its portable palette without local overrides.
 
@@ -213,7 +213,7 @@ moodsh theme set ocean
 moodsh theme set dusk --accent '#FF77CC' --path '#E6E6FA' --layout two-line
 ```
 
-Color overrides: `--accent`, `--path`, `--muted`, and `--error`. Each accepts a quoted `#RRGGBB`. Setting a built-in mood resets its palette and layout before applying your overrides. `muted` colors the mood name in the two-line layout.
+Color overrides: `--accent`, `--path`, `--muted`, and `--error`. Each accepts a quoted `#RRGGBB`. Setting a built-in mood resets its palette and layout before applying your overrides. An explicit `--path` color also enables theme path coloring. `muted` colors the mood name in the two-line layout.
 
 Saved changes appear at the next prompt, including in other shells using the same config. A theme preview never saves changes. For your exact current palette, run `moodsh theme preview` without a name.
 
@@ -291,11 +291,11 @@ Optional path preferences can follow the mood tables:
 
 ```toml
 [path]
-color = "terminal" # "theme" (default) or "terminal"
+color = "terminal" # "terminal" (default) or "theme"
 format = "full"    # "home" (default) or "full"
 ```
 
-Existing configs without `[path]` keep their appearance. These fields are runtime preferences, not part of the Markdown theme format.
+Configs without a path-color preference now use terminal coloring. Existing explicit preferences are preserved. These fields are runtime preferences, not part of the Markdown theme format.
 
 Copy [the example palette](themes/custom.toml) to your config path or edit your saved file. All `[mood]` fields are required; `[path]` and its fields are optional. `layout` is `compact` or `two-line`; names accept letters, numbers, hyphens, and underscores. Unknown keys and invalid colors produce an error rather than being silently ignored.
 

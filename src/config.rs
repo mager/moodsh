@@ -72,6 +72,29 @@ mod tests {
     }
 
     #[test]
+    fn unspecified_path_color_uses_terminal_but_explicit_preferences_win() {
+        use crate::prompt::{PathColor, PathFormat};
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+        assert_eq!(load(&path).unwrap().path.color, PathColor::Terminal);
+        // A pre-0.7 config has only the mood table.
+        let legacy = toml::to_string(&Config::default())
+            .unwrap()
+            .split("[path]")
+            .next()
+            .unwrap()
+            .to_owned();
+        fs::write(&path, &legacy).unwrap();
+        assert_eq!(load(&path).unwrap().path.color, PathColor::Terminal);
+        fs::write(&path, format!("{legacy}\n[path]\nformat = 'full'\n")).unwrap();
+        let partial = load(&path).unwrap();
+        assert_eq!(partial.path.color, PathColor::Terminal);
+        assert_eq!(partial.path.format, PathFormat::Full);
+        fs::write(&path, format!("{legacy}\n[path]\ncolor = 'theme'\n")).unwrap();
+        assert_eq!(load(&path).unwrap().path.color, PathColor::Theme);
+    }
+
+    #[test]
     fn roundtrip_replace_and_reject_invalid_without_overwriting() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("nested/config.toml");

@@ -405,7 +405,6 @@ mod tests {
     #[test]
     fn terminal_path_preview_survives_browsing_and_cancelled_color_edit() {
         let mut picker = Picker::new(Mood::builtin("paper").unwrap());
-        key(&mut picker, KeyCode::Char('p'));
         assert_eq!(picker.path.color, PathColor::Terminal);
         key(&mut picker, KeyCode::Up);
         let mut out = Vec::new();

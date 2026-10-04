@@ -5,8 +5,8 @@ use std::path::Path;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Deserialize, Serialize, clap::ValueEnum)]
 #[serde(rename_all = "kebab-case")]
 pub enum PathColor {
-    #[default]
     Theme,
+    #[default]
     Terminal,
 }
 

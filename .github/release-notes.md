@@ -1,15 +1,11 @@
-Mood Shell 0.7.0 adds **directory display controls** on Zsh, Bash, and PowerShell 7.
+Mood Shell 0.7.1 makes **the terminal’s normal text color the default for directory paths**.
 
-The path already appears in both layouts. If a palette makes it hard to see, run:
+New installations and configs without a path-color preference use `terminal`. Existing explicit choices are preserved. Both prompt layouts show the directory, with `~/…` still the default format.
 
-```sh
-moodsh path --color terminal
-```
+- `moodsh path --color theme`: use your theme’s path color.
+- `moodsh path --color terminal`: use the default terminal text color.
+- `moodsh path --format full`: show the full directory.
 
-The directory now uses your terminal's configured foreground. Choose `moodsh path --format full` for the full directory, or `--format home` for `~/…`. Restore palette coloring with `--color theme`. Preferences survive theme changes and stay out of exported Markdown themes.
+An explicit `theme set --path '#RRGGBB'` now enables that color, matching the picker. Named/file previews still show the portable palette. No shell-hook changes or new dependencies.
 
-The picker has a live **P** toggle for path color and labels Paper for light terminals. Applying a path hex color with **2** switches back to theme coloring. Enter saves, Esc cancels.
-
-Existing configs retain their current appearance. Shell hooks, safe prompt rendering, no-color output, Git shortcuts, and Tab completion remain compatible. No new dependencies. New settings appear on the next prompt; reopen your shell to refresh command completion after upgrading.
-
-Ready-to-run binaries cover Apple Silicon and Intel macOS, x64 Linux, and x64 Windows, with SHA-256 checksums. Rust is not required.
+Upgrade the binary and open a new terminal to refresh completion. Your saved palette, layout, path format, and Git shortcuts remain available. Downloads include macOS, Linux, and Windows binaries with SHA-256 checksums.
