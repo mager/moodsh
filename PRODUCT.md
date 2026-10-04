@@ -18,7 +18,7 @@ Personal, playful, direct. The creator values simplicity, modern presentation, e
 
 ## Anti-references
 
-Avoid the complexity of a full plugin framework, which the README explicitly places outside the product's scope. Avoid presenting terminal backgrounds, animation, or inline history suggestions as shipped Mood Shell features. Avoid invented community members, download counts, and endorsements.
+Avoid the complexity of a full plugin framework, which the README explicitly places outside the product's scope. Avoid presenting terminal backgrounds or animation as shipped Mood Shell features. Inline history suggestions are available in Zsh only. Avoid invented community members, download counts, and endorsements.
 
 ## Design Principles
 

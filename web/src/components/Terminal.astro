@@ -6,6 +6,7 @@ const {
   id,
   command = 'git status',
   errorPreview = false,
+  suggestionPreview = false,
 } = Astro.props;
 const style = `--accent:${theme.colors[0]};--path:${theme.colors[1]};--muted:${theme.colors[2]};--error:${theme.colors[3]};--terminal-bg:${theme.backdrop};`;
 ---
@@ -57,9 +58,20 @@ const style = `--accent:${theme.colors[0]};--path:${theme.colors[1]};--muted:${t
       <span class="prompt-path">~/code/good-things</span>
       <span class="prompt-command">
         <span class="prompt-arrow"> &gt; </span>
-        <span class="cursor" aria-hidden="true"></span>
+        {suggestionPreview ? (
+          <span aria-label="Type git s; history suggests tatus">
+            git s<span class="suggestion-text">tatus</span>
+          </span>
+        ) : (
+          <span class="cursor" aria-hidden="true"></span>
+        )}
       </span>
     </div>
+    {suggestionPreview && (
+      <div class="suggestion-caption">
+        Zsh history preview · Right Arrow accepts
+      </div>
+    )}
     {errorPreview && (
       <div class="error-preview">
         <div class="terminal-comment"># after a failed command</div>
@@ -77,3 +89,16 @@ const style = `--accent:${theme.colors[0]};--path:${theme.colors[1]};--muted:${t
     )}
   </div>
 </div>
+
+<style>
+  .suggestion-text {
+    color: oklch(72% 0.01 300);
+  }
+  :global(.terminal.light) .suggestion-text {
+    color: oklch(46% 0.01 300);
+  }
+  .suggestion-caption {
+    margin-top: 1rem;
+    font-size: 0.85em;
+  }
+</style>

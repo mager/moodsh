@@ -54,5 +54,6 @@ execute anything in a theme file. Markdown viewers may independently render
 links or images; Mood Shell ignores them.
 
 [Afterhours](afterhours.md) is a complete example. Theme documents customize the
-prompt only. Terminal backgrounds, blinking cursors, syntax highlighting, and
-autosuggestions belong to other tools or terminal settings.
+prompt only. Zsh history suggestions are a separate moodsh input feature;
+their highlight color is not part of a theme. Terminal backgrounds, blinking
+cursors, and syntax highlighting belong to other tools or terminal settings.

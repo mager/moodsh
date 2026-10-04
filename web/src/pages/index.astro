@@ -10,7 +10,7 @@ const builtins = themes.filter((t) => t.builtIn);
     <div class="hero-copy">
       <a class="release-note" href={`${repo}/releases/tag/v${release}`}>
         <span class="status-dot"></span> v{release} is here{' '}
-        <span class="release-divider">/</span> Keep your path in view{' '}
+        <span class="release-divider">/</span> A little less typing{' '}
         <span aria-hidden="true">↗</span>
       </a>
       <h1>
@@ -45,7 +45,7 @@ const builtins = themes.filter((t) => t.builtIn);
         <span>ember</span>
       </div>
       <div class="playground-tilt">
-        <Terminal large id="hero-terminal" />
+        <Terminal large id="hero-terminal" suggestionPreview />
         <div class="preview-controls">
           <div class="preview-control-heading">
             <span>CHANGE THE MOOD</span>
@@ -157,6 +157,30 @@ const builtins = themes.filter((t) => t.builtIn);
       </a>
     </div>
   </section>
+  <section class="intro-section section-pad" id="suggestions">
+    <div>
+      <span class="eyebrow">YOU’VE TYPED THIS BEFORE.</span>
+      <h2>
+        A familiar command.
+        <br />A quiet suggestion.
+      </h2>
+    </div>
+    <div class="intro-copy">
+      <p>
+        Start typing in Zsh and a matching command from your history appears in
+        gray. Press <strong>Right Arrow</strong> at the end of your input to
+        accept it. <strong>Enter</strong> still runs the command.
+      </p>
+      <p>
+        Built in from v0.8.0. Update moodsh and open a new terminal. No matching
+        history? No suggestion. Tab still completes commands and files. Bash and
+        PowerShell keep their existing input behavior.
+      </p>
+      <a class="text-link" href={`${repo}#faint-suggestions-while-typing--zsh`}>
+        Setup &amp; preferences <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
   <section class="intro-section section-pad" id="directory">
     <div>
       <span class="eyebrow">KNOW WHERE YOU ARE.</span>
@@ -173,8 +197,8 @@ const builtins = themes.filter((t) => t.builtIn);
         <code>~/…</code>.
       </p>
       <p>
-        Directory text now uses your terminal’s normal color by default.
-        Prefer the theme’s palette? Opt in:
+        Directory text now uses your terminal’s normal color by default. Prefer
+        the theme’s palette? Opt in:
       </p>
       <div class="command-block">
         <pre>moodsh path --color theme</pre>
@@ -182,8 +206,8 @@ const builtins = themes.filter((t) => t.builtIn);
       <p>
         Your choice stays with you when you change themes. Press{' '}
         <strong>P</strong> in the picker to preview it, or use{' '}
-        <code>--color theme</code> for palette coloring. Paper suits
-        light terminals; moodsh leaves your background alone.
+        <code>--color theme</code> for palette coloring. Paper suits light
+        terminals; moodsh leaves your background alone.
       </p>
       <a class="text-link" href={`${repo}#keep-your-directory-readable`}>
         Path controls <span aria-hidden="true">↗</span>
@@ -387,9 +411,9 @@ eval "$(moodsh init zsh)"</pre>
     <span aria-hidden="true">✳</span>
     <p>
       A little clarity: Mood Shell styles your <strong>prompt</strong> and adds
-      Tab completion and optional Git shortcuts. Backgrounds, blinking cursors,
-      syntax highlighting, and inline history suggestions are separate terminal
-      or shell features.
+      Tab completion, Zsh history suggestions, and optional Git shortcuts.
+      Backgrounds, blinking cursors, and syntax highlighting are separate
+      terminal or shell features.
     </p>
   </section>
 </Base>
