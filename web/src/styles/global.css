@@ -1834,6 +1834,13 @@ select {
   }
 }
 
+#directory .command-block,
 #shortcuts .command-block {
   margin-bottom: 24px;
+}
+
+#directory .intro-copy .command-block + p {
+  font-size: 14px;
+  color: var(--subtle);
+  margin-bottom: 25px;
 }

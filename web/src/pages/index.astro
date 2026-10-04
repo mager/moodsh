@@ -10,7 +10,7 @@ const builtins = themes.filter((t) => t.builtIn);
     <div class="hero-copy">
       <a class="release-note" href={`${repo}/releases/tag/v${release}`}>
         <span class="status-dot"></span> v{release} is here{' '}
-        <span class="release-divider">/</span> Now with Git shortcuts{' '}
+        <span class="release-divider">/</span> Keep your path in view{' '}
         <span aria-hidden="true">↗</span>
       </a>
       <h1>
@@ -154,6 +154,39 @@ const builtins = themes.filter((t) => t.builtIn);
       </p>
       <a class="text-link" href="/themes/share/">
         Make a theme <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="intro-section section-pad" id="directory">
+    <div>
+      <span class="eyebrow">KNOW WHERE YOU ARE.</span>
+      <h2>
+        Your directory.
+        <br />
+        Always in view.
+      </h2>
+    </div>
+    <div class="intro-copy">
+      <p>
+        Both layouts show your current directory. Prefer the full path? Use{' '}
+        <code>moodsh path --format full</code>, or keep the familiar{' '}
+        <code>~/…</code>.
+      </p>
+      <p>
+        Path hard to see against your background? Use your terminal’s normal
+        text color:
+      </p>
+      <div class="command-block">
+        <pre>moodsh path --color terminal</pre>
+      </div>
+      <p>
+        Your choice stays with you when you change themes. Press{' '}
+        <strong>P</strong> in the picker to preview it, or use{' '}
+        <code>--color theme</code> to return to palette coloring. Paper suits
+        light terminals; moodsh leaves your background alone.
+      </p>
+      <a class="text-link" href={`${repo}#keep-your-directory-readable`}>
+        Path controls <span aria-hidden="true">↗</span>
       </a>
     </div>
   </section>
