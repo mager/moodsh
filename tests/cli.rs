@@ -323,12 +323,18 @@ fn terminal_path_is_visible_in_both_layouts_and_no_color_still_works() {
             .unwrap();
         assert!(output.status.success());
         let prompt = String::from_utf8(output.stdout).unwrap();
-        let cwd = std::fs::canonicalize(dir.path()).unwrap();
-        let cwd = cwd.display().to_string();
-        let cwd = cwd.strip_prefix(r"\\?\").unwrap_or(&cwd);
-        assert!(
-            prompt.contains(&format!("\x1b[39m{cwd}\x1b[0m")),
-            "{prompt:?}"
+        let rendered_path = prompt
+            .split("\x1b[39m")
+            .nth(1)
+            .expect("terminal foreground")
+            .split("\x1b[0m")
+            .next()
+            .unwrap();
+        assert!(Path::new(rendered_path).is_absolute(), "{prompt:?}");
+        // Windows may keep a short (8.3) component while canonicalize expands it.
+        assert_eq!(
+            std::fs::canonicalize(rendered_path).unwrap(),
+            std::fs::canonicalize(dir.path()).unwrap()
         );
         assert!(
             !prompt.contains("38;2;38;50;56"),
