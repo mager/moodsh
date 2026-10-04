@@ -173,16 +173,16 @@ const builtins = themes.filter((t) => t.builtIn);
         <code>~/…</code>.
       </p>
       <p>
-        Path hard to see against your background? Use your terminal’s normal
-        text color:
+        Directory text now uses your terminal’s normal color by default.
+        Prefer the theme’s palette? Opt in:
       </p>
       <div class="command-block">
-        <pre>moodsh path --color terminal</pre>
+        <pre>moodsh path --color theme</pre>
       </div>
       <p>
         Your choice stays with you when you change themes. Press{' '}
         <strong>P</strong> in the picker to preview it, or use{' '}
-        <code>--color theme</code> to return to palette coloring. Paper suits
+        <code>--color theme</code> for palette coloring. Paper suits
         light terminals; moodsh leaves your background alone.
       </p>
       <a class="text-link" href={`${repo}#keep-your-directory-readable`}>
