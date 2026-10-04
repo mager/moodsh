@@ -39,10 +39,17 @@ const builtins = themes.filter((t) => t.builtIn);
       <p class="hero-footnote">Made in Rust. Runs on Mac, Windows & Linux.</p>
     </div>
     <div class="hero-playground">
-      <div class="color-tabs" aria-hidden="true">
-        <span>dusk</span>
-        <span>aurora</span>
-        <span>ember</span>
+      <div class="color-tabs" role="group" aria-label="Quick mood previews">
+        {builtins.slice(0, 3).map((theme, index) => (
+          <button
+            type="button"
+            data-theme={theme.name}
+            aria-pressed={index === 0}
+            aria-controls="hero-terminal"
+          >
+            {theme.name}
+          </button>
+        ))}
       </div>
       <div class="playground-tilt">
         <Terminal large id="hero-terminal" suggestionPreview />
@@ -56,6 +63,7 @@ const builtins = themes.filter((t) => t.builtIn);
               <button
                 type="button"
                 class="mood-option"
+                aria-controls="hero-terminal"
                 data-theme={theme.name}
                 aria-pressed={index === 0}
               >
@@ -434,9 +442,12 @@ eval "$(moodsh init zsh)"</pre>
           .querySelectorAll('[data-mood-name], [data-mood-label]')
           .forEach((el) => (el.textContent = theme.name));
         document
-          .querySelectorAll('[data-theme]')
+          .querySelectorAll<HTMLButtonElement>('[data-theme]')
           .forEach((el) =>
-            el.setAttribute('aria-pressed', String(el === button)),
+            el.setAttribute(
+              'aria-pressed',
+              String(el.dataset.theme === theme.name),
+            ),
           );
       }),
     );

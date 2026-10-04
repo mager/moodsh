@@ -2,6 +2,10 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## Website — 2026-10-04
+
+- Make the decorative Dusk, Aurora, and Ember tabs operate the live preview, with keyboard support and selection synchronized with the mood buttons below. The CLI remains at 0.8.0.
+
 ## 0.8.0 — 2026-10-04
 
 - Enable faint inline history suggestions by default in interactive Zsh. Right Arrow at the end of input accepts the suggestion without executing it; Enter runs it. Tab completion remains available.
