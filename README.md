@@ -297,7 +297,7 @@ format = "full"    # "home" (default) or "full"
 
 Existing configs without `[path]` keep their appearance. These fields are runtime preferences, not part of the Markdown theme format.
 
-Copy [the example palette](themes/custom.toml) to your config path or edit your saved file. All shown fields are required. `layout` is `compact` or `two-line`; names accept letters, numbers, hyphens, and underscores. Unknown keys and invalid colors produce an error rather than being silently ignored.
+Copy [the example palette](themes/custom.toml) to your config path or edit your saved file. All `[mood]` fields are required; `[path]` and its fields are optional. `layout` is `compact` or `two-line`; names accept letters, numbers, hyphens, and underscores. Unknown keys and invalid colors produce an error rather than being silently ignored.
 
 Default locations:
 
