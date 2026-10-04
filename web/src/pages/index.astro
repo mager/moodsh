@@ -39,18 +39,6 @@ const builtins = themes.filter((t) => t.builtIn);
       <p class="hero-footnote">Made in Rust. Runs on Mac, Windows & Linux.</p>
     </div>
     <div class="hero-playground">
-      <div class="color-tabs" role="group" aria-label="Quick mood previews">
-        {builtins.slice(0, 3).map((theme, index) => (
-          <button
-            type="button"
-            data-theme={theme.name}
-            aria-pressed={index === 0}
-            aria-controls="hero-terminal"
-          >
-            {theme.name}
-          </button>
-        ))}
-      </div>
       <div class="playground-tilt">
         <Terminal large id="hero-terminal" suggestionPreview />
         <div class="preview-controls">
@@ -58,20 +46,16 @@ const builtins = themes.filter((t) => t.builtIn);
             <span>CHANGE THE MOOD</span>
             <span class="preview-hint">go on, try one ↙</span>
           </div>
-          <div class="mood-options">
+          <div class="mood-options" role="group" aria-label="Preview a mood">
             {builtins.map((theme, index) => (
               <button
                 type="button"
                 class="mood-option"
+                style={`--mood-color:${theme.colors[0]}`}
                 aria-controls="hero-terminal"
                 data-theme={theme.name}
                 aria-pressed={index === 0}
               >
-                <span
-                  class="mood-swatch"
-                  style={`background:${theme.colors[0]}`}
-                  aria-hidden="true"
-                ></span>
                 {theme.title}
               </button>
             ))}

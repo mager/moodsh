@@ -4,6 +4,8 @@ Versions follow Semantic Versioning. New features increment the minor version; c
 
 ## Website — 2026-10-04
 
+- Consolidate the hero into one five-mood picker below the terminal, carrying the pastel swatch design into those controls and removing the duplicate top tabs.
+
 - Make the decorative Dusk, Aurora, and Ember tabs operate the live preview, with keyboard support and selection synchronized with the mood buttons below. The CLI remains at 0.8.0.
 
 ## 0.8.0 — 2026-10-04
