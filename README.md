@@ -79,6 +79,12 @@ cargo install --path . --locked
 
 Confirm `moodsh --version` works before adding your shell integration.
 
+## Update an existing install
+
+Download the latest archive for your platform from [Releases](https://github.com/mager/moodsh/releases) and replace the existing `moodsh` executable using the same installation steps above. Keep the executable at the same location: shell hooks reference that path. Your config is stored separately and is preserved.
+
+If you installed with Cargo, run `cargo install --git https://github.com/mager/moodsh --tag v0.7.1 --locked` (or `~/.cargo/bin/cargo` if Cargo is not on PATH). For a local source checkout, pull the latest code and run `cargo install --path . --locked` there. Open a new terminal to refresh shell integration and completion, then check `moodsh --version`.
+
 ## Connect your shell
 
 Use one prompt engine at a time: remove or comment out an existing Starship/Oh My Posh init line. With Oh My Zsh, use `ZSH_THEME=""` and put Mood Shell's init **after** Oh My Zsh loads. Your other plugins can stay.
