@@ -362,3 +362,22 @@ fn explicit_hex_path_color_enables_theme_coloring_without_resetting_format() {
     assert!(saved.contains("format = \"full\""));
     assert!(saved.contains("#ABCDEF"));
 }
+
+#[test]
+fn inline_suggestions_are_zsh_only_and_can_be_disabled_at_startup() {
+    let dir = tempfile::tempdir().unwrap();
+    let config = dir.path().join("config.toml");
+    for (args, included) in [
+        (vec!["init", "zsh"], true),
+        (vec!["init", "zsh", "--no-suggestions"], false),
+        (vec!["init", "bash"], false),
+        (vec!["init", "powershell"], false),
+    ] {
+        let out = run(&config, &args);
+        assert!(out.status.success());
+        let script = String::from_utf8(out.stdout).unwrap();
+        assert_eq!(script.contains("_zsh_autosuggest_start()"), included);
+        assert!(script.contains("prompt --shell"));
+    }
+    assert!(!config.exists());
+}

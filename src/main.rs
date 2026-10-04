@@ -3,6 +3,7 @@ mod picker;
 mod prompt;
 mod shell;
 mod shortcuts;
+mod suggestions;
 mod theme;
 mod theme_file;
 
@@ -37,6 +38,9 @@ enum Command {
         /// Add opt-in shortcuts; existing aliases, functions, and commands win.
         #[arg(long, value_enum)]
         shortcuts: Option<ShortcutSet>,
+        /// Disable bundled inline history suggestions in Zsh (open a new shell).
+        #[arg(long)]
+        no_suggestions: bool,
     },
     /// Show the exact commands in a shortcut set.
     Shortcuts {
@@ -170,6 +174,7 @@ fn run() -> Result<()> {
         Command::Init {
             shell: target,
             shortcuts: enabled,
+            no_suggestions,
         } => {
             let script = shell::init(target.into(), &std::env::current_exe()?)?;
             let completion_shell = match target {
@@ -195,6 +200,9 @@ fn run() -> Result<()> {
             } else {
                 stdout.write_all(script.as_bytes())?;
                 stdout.write_all(&completions)?;
+            }
+            if matches!(target, InitShell::Zsh) && !no_suggestions {
+                stdout.write_all(suggestions::ZSH.as_bytes())?;
             }
             if let Some(shortcuts) = shortcut_script {
                 stdout.write_all(shortcuts.as_bytes())?;

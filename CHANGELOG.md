@@ -2,6 +2,13 @@
 
 Versions follow Semantic Versioning. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out here. Git tags use `vMAJOR.MINOR.PATCH` and must match `Cargo.toml`.
 
+## 0.8.0 — 2026-10-04
+
+- Enable faint inline history suggestions by default in interactive Zsh. Right Arrow at the end of input accepts the suggestion without executing it; Enter runs it. Tab completion remains available.
+- Bundle unmodified MIT-licensed zsh-autosuggestions v0.7.1, pinned to an upstream revision, with attribution in source and release archives. History stays local; no additional installation or Rust process per keystroke.
+- Add `moodsh init zsh --no-suggestions` for startup opt-out. Preserve an already-loaded engine, custom keybindings, and upstream preferences; skip loading for `NO_COLOR` and `TERM=dumb`. Limit suggestion lookup to 256 input characters by default.
+- Add real Zsh PTY regression tests on macOS/Linux for visible suggestions, recent history, acceptance without execution, cursor movement, Unicode, deletion, cancellation, literal metacharacters, Tab completion, opt-out, and integration coexistence. Bash and PowerShell input behavior is unchanged.
+
 ## 0.7.1 — 2026-10-04
 
 - Default directory text to the terminal's normal foreground, including older configs without a path-color preference. Keep explicit `theme` or `terminal` choices intact.

@@ -44,6 +44,9 @@ jobs:
       - name: Exercise gprom against local Git repositories
         shell: bash
         run: python scripts/test_gprom.py target/debug/moodsh${{ runner.os == 'Windows' && '.exe' || '' }}
+      - name: Exercise inline suggestions and Tab completion in a real Zsh PTY
+        if: runner.os != 'Windows'
+        run: python scripts/test_suggestions.py target/debug/moodsh
       - name: Exercise interactive picker in a PTY
         if: runner.os != 'Windows'
         run: python scripts/test_picker.py target/debug/moodsh

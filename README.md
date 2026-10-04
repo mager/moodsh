@@ -12,7 +12,7 @@ dusk ~/code/moodsh
 >
 ```
 
-Version **0.7.1** makes the terminal’s normal text color the default for directories. Directory controls let you choose a full path or `~/…`, or opt into the theme’s path color. Preferences survive theme changes. Opt-in Git shortcuts include `gprom` to pull and rebase from origin’s main branch. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
+Version **0.8.0** adds faint history suggestions while you type in Zsh. Press Right Arrow at the end of your input to accept; Enter still runs the command. Directory text uses the terminal’s normal color by default. Directory controls let you choose a full path or `~/…`, or opt into the theme’s path color. Preferences survive theme changes. Opt-in Git shortcuts include `gprom` to pull and rebase from origin’s main branch. Start with five palettes, tune hex colors in the live picker, and export your own Markdown theme. Two layouts and failed-command status keep the prompt readable. No required fonts, account, daemon, or telemetry.
 
 [Website](https://moodsh.vercel.app) · [Theme gallery](https://moodsh.vercel.app/themes/) · [Make and share a theme](https://moodsh.vercel.app/themes/share/)
 
@@ -57,7 +57,7 @@ Release binaries: Apple Silicon macOS, Intel macOS, x64 Linux (glibc), and x64 W
 With a current stable [Rust toolchain](https://rust-lang.org/tools/install/) and Git:
 
 ```sh
-cargo install --git https://github.com/mager/moodsh --tag v0.7.1 --locked
+cargo install --git https://github.com/mager/moodsh --tag v0.8.0 --locked
 ```
 
 **`zsh: command not found: cargo`?** Cargo is Rust's build tool, not a built-in shell command. Use the prebuilt download above, or install Rust first. If Rust is already installed in `~/.cargo`, load its PATH in your current Zsh/Bash session:
@@ -83,7 +83,7 @@ Confirm `moodsh --version` works before adding your shell integration.
 
 Download the latest archive for your platform from [Releases](https://github.com/mager/moodsh/releases) and replace the existing `moodsh` executable using the same installation steps above. Keep the executable at the same location: shell hooks reference that path. Your config is stored separately and is preserved.
 
-If you installed with Cargo, run `cargo install --git https://github.com/mager/moodsh --tag v0.7.1 --locked` (or `~/.cargo/bin/cargo` if Cargo is not on PATH). For a local source checkout, pull the latest code and run `cargo install --path . --locked` there. Open a new terminal to refresh shell integration and completion, then check `moodsh --version`.
+If you installed with Cargo, run `cargo install --git https://github.com/mager/moodsh --tag v0.8.0 --locked` (or `~/.cargo/bin/cargo` if Cargo is not on PATH). For a local source checkout, pull the latest code and run `cargo install --path . --locked` there. Open a new terminal to refresh shell integration and completion, then check `moodsh --version`.
 
 ## Connect your shell
 
@@ -125,7 +125,24 @@ The same init line now registers completion for `moodsh` commands, flags, layout
 
 For Zsh, Mood Shell also initializes Zsh's standard completion system when it is not already active. This restores normal command and path completion after removing Oh My Zsh. Bash and PowerShell retain their existing command and path completion; Mood Shell adds its own command definitions to those shells. Completion runs when you press Tab, while prompt rendering still uses the same small hook.
 
-This release provides **Tab completion**. Inline suggestions from your command history while you type are a separate feature and are not included yet.
+### Faint suggestions while typing · Zsh
+
+Zsh startup now enables **inline history suggestions** by default. Run `echo moodsh-ready` once, then type `echo moodsh-` at the next prompt: the remaining `ready` appears in gray. Press **Right Arrow** at the end of your input to accept it. Acceptance only inserts text; **Enter** runs the command. Keep typing to narrow the match, or **Ctrl-C** to cancel.
+
+Suggestions come from the most recent matching command in your local Zsh history. They do not predict new commands or suggest files you have never used. Tab still completes commands and file paths, including ambiguous names such as `~/.zsh`. With no matching history, no suggestion appears. Moodsh leaves your history recording and persistence settings alone; commands from previous sessions are available only if your shell saves and loads them.
+
+Upgrade the binary and **open a new terminal** to activate this in an existing install. No extra download or setup is needed. This release adds suggestions to **Zsh on macOS/Linux**; Bash and PowerShell keep their existing input behavior.
+
+To turn suggestions off, add `--no-suggestions` to your existing init line and open a new terminal:
+
+```sh
+eval "$(moodsh init zsh --no-suggestions)"
+# Keep --shortcuts git here too if you use it.
+```
+
+An already-loaded suggestion engine and custom keybindings are preserved. `NO_COLOR` or `TERM=dumb` skips automatic loading. The gray comes from the terminal's ANSI color 8; if it is hard to see, set `ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=245'` before the init line to choose another terminal color. This is separate from your prompt palette.
+
+The implementation bundles the MIT-licensed [zsh-autosuggestions v0.7.1](https://github.com/zsh-users/zsh-autosuggestions/tree/v0.7.1) engine, pinned and credited in [third-party notices](THIRD_PARTY_NOTICES.md). It loads once at shell startup, uses Zsh's asynchronous history lookup, and makes no network requests or Rust calls per keystroke. Inputs longer than 256 characters skip suggestion lookup by default.
 
 ## Git shortcuts
 
@@ -322,7 +339,7 @@ moodsh prompt --no-color
 
 A 24-bit color terminal gives the intended palette. Set `NO_COLOR` to disable colors; `TERM=dumb` also uses plain output. Prompt symbols are ASCII, so no Nerd Font is required.
 
-A mood styles **the prompt**. Tab completion and optional Git shortcuts assist with commands; they do not change terminal colors. Terminal backgrounds, command syntax highlighting, inline history suggestions, loading arbitrary shell extensions, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
+A mood styles **the prompt**. Tab completion, Zsh history suggestions, and optional Git shortcuts assist with commands; they do not change terminal colors. Terminal backgrounds, command syntax highlighting, suggestions in Bash/PowerShell, loading arbitrary shell extensions, Fish support, and animations are future work. Mood Shell augments your existing shell; it is not a command interpreter or an MCP server.
 
 A blinking or pulsing cursor comes from your terminal emulator's settings, not Mood Shell. This is an early public release for people who want a small, customizable prompt; it does not replace the plugin features of a full shell framework.
 
@@ -337,9 +354,10 @@ cargo test --locked
 cargo build --locked
 python3 scripts/test_shells.py target/debug/moodsh
 python3 scripts/test_picker.py target/debug/moodsh
+python3 scripts/test_suggestions.py target/debug/moodsh
 ```
 
-On Windows, use `python` and `target/debug/moodsh.exe` for the shell integration tests. The PTY picker script runs on macOS/Linux; picker state and input tests run natively on all three platforms. The shell integration tests exercise available supported shells; CI requires PowerShell on all three operating systems, plus Bash/Zsh where available.
+On Windows, use `python` and `target/debug/moodsh.exe` for the shell integration tests. The PTY picker and Zsh suggestion scripts run on macOS/Linux; picker state and input tests run natively on all three platforms. The shell integration tests exercise available supported shells; CI requires PowerShell on all three operating systems, plus Bash/Zsh where available.
 
 Versions follow [Semantic Versioning](https://semver.org/), starting at `0.1.0`. New features increment the minor version; compatible fixes increment the patch version. Before 1.0, breaking changes also increment the minor version and are called out in the changelog. Update `Cargo.toml`, `Cargo.lock`, `CHANGELOG.md`, and `.github/release-notes.md` before tagging `vX.Y.Z`. Pushing a tag builds release archives and publishes them with SHA-256 checksums. The workflow rejects a tag that does not match the package version.
 

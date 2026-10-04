@@ -48,7 +48,7 @@ jobs:
           dest.mkdir(parents=True)
           executable = 'moodsh.exe' if 'windows' in target else 'moodsh'
           shutil.copy2(pathlib.Path('target') / target / 'release' / executable, dest)
-          for file in ('README.md', 'LICENSE', 'CHANGELOG.md'):
+          for file in ('README.md', 'LICENSE', 'CHANGELOG.md', 'THIRD_PARTY_NOTICES.md'):
               shutil.copy2(file, dest)
           shutil.copytree('themes', dest / 'themes')
           pathlib.Path('dist').mkdir()
